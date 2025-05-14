@@ -245,7 +245,7 @@ signal rdy_flag_fr_update_eng_pr                  : std_logic;
 
 -------------------------------------------------
 -- For Debug  Only
--------------------------------------------------
+-------------------------------------------------.
 constant ADDR_WIDTH : integer := 8;
 
 
@@ -257,7 +257,7 @@ begin
 -- Decode for Mux and Demux control
 -----------------------------------------	 
 --decode_logic_for_mux_demux_control : process(master_mode_upper_bits_r)
-decode_logic_for_mux_demux_control : process(master_mode_i)
+decode_logic_for_mux_demux_control : process(master_mode_upper_bits_r)
 
 begin
 	

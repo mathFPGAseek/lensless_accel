@@ -206,7 +206,7 @@ architecture struct of fista_accel_top is
   constant ZERO_VECTOR                     : std_logic_vector(0 downto 0) := (others => '0');
   
   constant g_USE_DEBUG_MODE_i              --: natural := 0; .
-                                           : natural := 0;
+                                           : natural := 1;
                                            -- otherwise 0.
   																		     -- set to 1 for H,H* sim debug; ( 2 RO Mems)
   																				 -- set to 2 for FFT/IFFT sim debug;( 1 RO Mem)

@@ -184,9 +184,10 @@ begin
 --   Port 2 : C + Di
 --   (AC - BD) Re + (AD + BC) Im
 
-U1: entity xil_defaultlib.floating_point_mult_LL_0 -- A(Re)*C(Re)
+U1: entity xil_defaultlib.floating_point_mult_REGEN_LL_0 -- A(Re)*C(Re)
   PORT MAP ( 
   aclk                   => clk_i,    --- aclk : in STD_LOGIC;
+  aresetn                => not(rst_i),
   s_axis_a_tvalid        => port_1_valid_in_i,         -- s_axis_a_tvalid : in STD_LOGIC;
   s_axis_a_tready        => port_1_u1_rdy,         -- s_axis_a_tready : out STD_LOGIC;
   s_axis_a_tdata         => port_1_data_in_i(31 downto 0),         -- s_axis_a_tdata : in STD_LOGIC_VECTOR ( 31 downto 0 );
@@ -199,9 +200,10 @@ U1: entity xil_defaultlib.floating_point_mult_LL_0 -- A(Re)*C(Re)
   );
  
 
-U2: entity xil_defaultlib.floating_point_mult_LL_0 -- B(Im)*D(Im)
+U2: entity xil_defaultlib.floating_point_mult_REGEN_LL_0 -- B(Im)*D(Im)
   PORT MAP ( 
   aclk                   => clk_i,    --- aclk : in STD_LOGIC;
+  aresetn                => not(rst_i),
   s_axis_a_tvalid        => port_1_valid_in_i,         -- s_axis_a_tvalid : in STD_LOGIC;
   s_axis_a_tready        => port_1_u2_rdy,         -- s_axis_a_tready : out STD_LOGIC;
   s_axis_a_tdata         => port_1_data_in_i(71 downto 40),         -- s_axis_a_tdata : in STD_LOGIC_VECTOR ( 31 downto 0 );
@@ -214,9 +216,11 @@ U2: entity xil_defaultlib.floating_point_mult_LL_0 -- B(Im)*D(Im)
   ); 
 
 
-U3: entity xil_defaultlib.floating_point_mult_LL_0 -- A(Re)*D(Im)
+
+U3: entity xil_defaultlib.floating_point_mult_REGEN_LL_0 -- A(Re)*D(Im).
   PORT MAP ( 
   aclk                   => clk_i,    --- aclk : in STD_LOGIC;
+  aresetn                => not(rst_i),
   s_axis_a_tvalid        => port_1_valid_in_i,         -- s_axis_a_tvalid : in STD_LOGIC;
   s_axis_a_tready        => port_1_u3_rdy,         -- s_axis_a_tready : out STD_LOGIC;
   s_axis_a_tdata         => port_1_data_in_i(31 downto 0),         -- s_axis_a_tdata : in STD_LOGIC_VECTOR ( 31 downto 0 );
@@ -229,9 +233,10 @@ U3: entity xil_defaultlib.floating_point_mult_LL_0 -- A(Re)*D(Im)
   );
   
   
-U4: entity xil_defaultlib.floating_point_mult_LL_0 -- B(Im)*C(Re)
+U4: entity xil_defaultlib.floating_point_mult_REGEN_LL_0 -- B(Im)*C(Re)
   PORT MAP ( 
   aclk                   => clk_i,    --- aclk : in STD_LOGIC;
+  aresetn                => not(rst_i),
   s_axis_a_tvalid        => port_1_valid_in_i,         -- s_axis_a_tvalid : in STD_LOGIC;
   s_axis_a_tready        => port_1_u4_rdy,         -- s_axis_a_tready : out STD_LOGIC;
   s_axis_a_tdata         => port_1_data_in_i(71 downto 40),         -- s_axis_a_tdata : in STD_LOGIC_VECTOR ( 31 downto 0 );

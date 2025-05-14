@@ -1697,6 +1697,10 @@ generic (
         app_wdf_end_rrr   <=          '0';   --: out std_logic;
         --app_wdf_en_r    <=          '0';   --: out std_logic;
         --app_wdf_wren_rrr  <=          '0';   --: out std_logic_vector(2 downto 0);
+        
+        app_en_rrrr       <=          '0';   --: out std_logic;
+        app_en_rrrrr      <=          '0';   --: out std_logic;
+
     	
         -- mux/demux control to ddr memory controller.
         ddr_intf_mux_wr_sel_r    <=    "00";  --: out std_logic_vector(1 downto 0);
@@ -1826,6 +1830,12 @@ generic (
         app_wdf_end_rrr   <=          '0';   --: out std_logic;
         --app_wdf_en_r    <=          '0';   --: out std_logic;
         --app_wdf_wren_rrr  <=          '0';   --: out std_logic_vector(2 downto 0);
+        
+               
+        app_en_rrrr       <=          '0';   --: out std_logic;
+        app_en_rrrrr      <=          '0';   --: out std_logic;.
+
+   
     	
         -- mux/demux control to ddr memory controller.
         ddr_intf_mux_wr_sel_r    <=    "00";  --: out std_logic_vector(1 downto 0);
