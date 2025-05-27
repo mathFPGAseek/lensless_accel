@@ -3,6 +3,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 USE ieee.numeric_std.ALL;
 use std.textio.all;
 use ieee.std_logic_textio.all;
+LIBRARY xil_defaultlib;
+USE xil_defaultlib.all;
 
 
 entity mem_h_psf_module is
@@ -82,7 +84,9 @@ begin
   --g_use_u1_no_debug : if debug_state_i = 0 generate -- default condition
  g_use_u1_no_debug : if g_USE_DEBUG_MODE_i = 0 generate -- default condition
  		
-  	u1 : entity work.blk_mem_gen_h_psf_mem_LL_0 
+  	--u1 : entity work.blk_mem_gen_h_psf_mem_LL_0 
+  	u1 : entity xil_defaultlib.blk_mem_gen_h_psf_mem_LL_0 
+
   	PORT MAP ( 
   	clka  => clk_i,                                      --clka : in STD_LOGIC;
   	--ena   => ena,                                      --ena : in STD_LOGIC;
