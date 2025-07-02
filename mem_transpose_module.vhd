@@ -43,7 +43,7 @@ architecture stub of mem_transpose_module is
 --attribute syn_black_box of stub : architecture is true;
 --attribute black_box_pad_pin of stub : architecture is "clka,ena,wea[0:0],addra[7:0],dina[79:0],clkb,enb,addrb[7:0],doutb[79:0]";
 --attribute x_core_info : string;
---attribute x_core_info of stub : architecture is "blk_mem_gen_v8_4_5,Vivado 2022.2";.
+--attribute x_core_info of stub : architecture is "blk_mem_gen_v8_4_5,Vivado 2022.2";
 
 -- For verification and synthesis
 signal data_out_r                   : std_logic_vector( 79 downto 0);
@@ -51,7 +51,38 @@ signal data_out_no_debug_default_r  : std_logic_vector( 79 downto 0);
 signal data_out_no_debug_fwd_2d_A_r        : std_logic_vector( 79 downto 0);
 signal enable_read_rr               : std_logic;
 
+COMPONENT blk_mem_gen_debug_h_transpose_mem_REGEN2_LL_0
+	Port ( 
+    clka : in STD_LOGIC;
+    ena : in STD_LOGIC;
+    wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+    addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
+    dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
+    douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
+  );
+ END COMPONENT;
 
+COMPONENT blk_mem_gen_debug_h_transpose_mem_REGEN_LL_0
+	Port ( 
+    clka : in STD_LOGIC;
+    ena : in STD_LOGIC;
+    wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+    addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
+    dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
+    douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
+  );
+ END COMPONENT;
+
+COMPONENT blk_mem_debug_h_transpose_seq_mem_LL_0 is
+  Port ( 
+    clka : in STD_LOGIC;
+    ena : in STD_LOGIC;
+    wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+    addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
+    dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
+    douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
+  );
+ END COMPONENT;
 -------------------------------------------------	
 -------------------------------------------------
 -------------------------------------------------
@@ -233,8 +264,8 @@ begin
  	
  	
 g_use_u2_debug_h_transpose_mem : if g_USE_DEBUG_MODE_i = 1 generate -- debug H
- 
-u2 : entity work.blk_mem_gen_debug_h_transpose_mem_REGEN_LL_0 -- 256x256 entries of 2 + 3i( single float)
+	
+u2 : blk_mem_gen_debug_h_transpose_mem_REGEN2_LL_0 -- 256x256 entries of 2 + 3i( single float)
   PORT MAP ( 
   clka => clk_i, --clka : in STD_LOGIC;
   ena => ena_to_mem_d, --ena : in STD_LOGIC;
@@ -243,30 +274,36 @@ u2 : entity work.blk_mem_gen_debug_h_transpose_mem_REGEN_LL_0 -- 256x256 entries
   dina  => dina, --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
   douta => data_out_no_debug_fwd_2d_A_r --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
   );
+ 
+--u2 : blk_mem_gen_debug_h_transpose_mem_REGEN_LL_0 -- 256x256 entries of 2 + 3i( single float)
+--  PORT MAP ( 
+--  clka => clk_i, --clka : in STD_LOGIC;
+--  ena => ena_to_mem_d, --ena : in STD_LOGIC;
+--  wea => write_control_from_generic, --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+--  addra => addra, --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
+--  dina  => dina, --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
+--  douta => data_out_no_debug_fwd_2d_A_r --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
+--  );
 
   data_out_r <= data_out_no_debug_fwd_2d_A_r;
+
+--u2 : entity blk_mem_debug_h_transpose_seq_mem_LL_0 
+--u2 : blk_mem_debug_h_transpose_seq_mem_LL_0 
+
+--  PORT MAP ( 
+--    clka  => clk_i,--clka : in STD_LOGIC;
+--    ena   => ena_to_mem_d,--ena : in STD_LOGIC;
+--    wea   => write_control_from_generic,--wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+--    addra => addra,--addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
+--    dina  => dina,--dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
+--    douta => data_out_no_debug_fwd_2d_A_r--douta : out STD_LOGIC_VECTOR ( 79 downto 0 ).
+--  );
+
 
 
 end generate g_use_u2_debug_h_transpose_mem;
 
- 	
- --g_use_u2_fwd_2d_A_debug : if debug_state_i = 1 generate -- debug H
--- g_use_u2_fwd_2d_A_debug : if g_USE_DEBUG_MODE_i = 1 generate -- debug H
-  		
---  	u2 : entity work.blk_mem_fwd_2d_A_image_gen_0 
---  	PORT MAP ( 
---  	clka  => clk_i,                                      --clka : in STD_LOGIC;
-  	--ena   => ena,                                        --ena : in STD_LOGIC;
---  	ena   => ena_to_mem_d,                               --ena : in STD_LOGIC;
---  	wea   => write_control_from_generic,                 --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
---  	addra => addra,                                      --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
---  	dina  => dina,                                       --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
---  	douta => data_out_no_debug_fwd_2d_A_r                --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
---  	);
 
---    data_out_r <= data_out_no_debug_fwd_2d_A_r;
-    
--- end generate g_use_u2_fwd_2d_A_debug;
  
  -- kludge fix to read from transpose the last sample
  

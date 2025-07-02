@@ -91,17 +91,33 @@ signal bc_data                         : std_logic_vector(31 downto 0);
 	
 signal ac_minus_bd_valid_d             : std_logic;
 signal ac_minus_bd_valid_r             : std_logic;
+signal ac_minus_bd_valid_rr            : std_logic;
+signal ac_minus_bd_valid_rrr           : std_logic;
+
 
 signal ad_plus_bc_valid_d              : std_logic;
 signal ad_plus_bc_valid_r              : std_logic;
+signal ad_plus_bc_valid_rr             : std_logic;
+signal ad_plus_bc_valid_rrr            : std_logic;
+
 
   
-signal ac_minus_bd_data_d               : std_logic_vector( 31 downto 0);
-signal ac_minus_bd_data_r               : std_logic_vector( 31 downto 0);
+signal ac_minus_bd_data_d              : std_logic_vector( 31 downto 0);
+signal ac_minus_bd_data_r              : std_logic_vector( 31 downto 0);
+signal ac_minus_bd_data_rr             : std_logic_vector( 31 downto 0);
+signal ac_minus_bd_data_rrr            : std_logic_vector( 31 downto 0);
+signal ac_minus_bd_data_rrrr           : std_logic_vector( 31 downto 0);
+
+
   
   
 signal ad_plus_bc_data_d               : std_logic_vector( 31 downto 0);
 signal ad_plus_bc_data_r               : std_logic_vector( 31 downto 0);
+signal ad_plus_bc_data_rr              : std_logic_vector( 31 downto 0);
+signal ad_plus_bc_data_rrr             : std_logic_vector( 31 downto 0);
+signal ad_plus_bc_data_rrrr            : std_logic_vector( 31 downto 0);
+
+
 	
 signal port_1_u1_rdy                   : std_logic;
 signal port_2_u1_rdy                   : std_logic;
@@ -151,6 +167,7 @@ begin
                              
         master_mode_i          => master_mode_i,-- : in std_logic_vector(4 downto 0);                                                                                      
         valid_i                => port_1_valid_in_i,  -- : in std_logic; --
+        start_output_i         => ac_minus_bd_valid_d,
                            
         s_axis_data_tlast_o    => open,-- : out std_logic;
         
@@ -306,11 +323,19 @@ U4: entity xil_defaultlib.floating_point_mult_REGEN_LL_0 -- B(Im)*C(Re)
   			
   		elsif(clk_i'event and clk_i = '1') then
   			
-  			sub_re_input_valid_r <= sub_re_input_valid_d;
-  			add_im_input_valid_r <= add_im_input_valid_d;
+  			sub_re_input_valid_r   <= sub_re_input_valid_d;
+  			add_im_input_valid_r   <= add_im_input_valid_d;
   			
-  			ac_minus_bd_valid_r  <= ac_minus_bd_valid_d;
-  			ad_plus_bc_valid_r   <= ad_plus_bc_valid_d;
+  			ac_minus_bd_valid_r    <= ac_minus_bd_valid_d;
+  			ad_plus_bc_valid_r     <= ad_plus_bc_valid_d;
+  			
+  			
+  			ac_minus_bd_valid_rr   <= ac_minus_bd_valid_r;
+  			ad_plus_bc_valid_rr    <= ad_plus_bc_valid_r;
+  			
+  			
+  			ac_minus_bd_valid_rrr  <= ac_minus_bd_valid_rr;
+  			ad_plus_bc_valid_rrr   <= ad_plus_bc_valid_rr;
   			
   	  end if;
   	  	
@@ -331,8 +356,20 @@ U4: entity xil_defaultlib.floating_point_mult_REGEN_LL_0 -- B(Im)*C(Re)
   			
   		elsif(clk_i'event and clk_i = '1') then
   						
-  			ac_minus_bd_data_r   <= ac_minus_bd_data_d;
-  			ad_plus_bc_data_r    <= ad_plus_bc_data_d;
+  			ac_minus_bd_data_r     <= ac_minus_bd_data_d;
+  			ad_plus_bc_data_r      <= ad_plus_bc_data_d;
+  			
+  						
+  			ac_minus_bd_data_rr    <= ac_minus_bd_data_r;
+  			ad_plus_bc_data_rr     <= ad_plus_bc_data_r;
+  			
+  						
+  			ac_minus_bd_data_rrr   <= ac_minus_bd_data_rr;
+  			ad_plus_bc_data_rrr    <= ad_plus_bc_data_rr;
+  			
+  						
+  			ac_minus_bd_data_rrrr   <= ac_minus_bd_data_rrr;
+  			ad_plus_bc_data_rrrr    <= ad_plus_bc_data_rrr;
   		
   			
   	  end if;
@@ -344,7 +381,7 @@ U4: entity xil_defaultlib.floating_point_mult_REGEN_LL_0 -- B(Im)*C(Re)
   -- Output Data  & Output Valid
   -----------------------------------------	 
   
-  valid_out_o    <= ac_minus_bd_valid_r and ad_plus_bc_valid_r;
-  data_out_o     <= PAD_EIGHT_ZEROS & ad_plus_bc_data_r( 31 downto 0) & PAD_EIGHT_ZEROS & ac_minus_bd_data_r(31 downto 0);
+  valid_out_o    <= ac_minus_bd_valid_rrr and ad_plus_bc_valid_rrr;
+  data_out_o     <= PAD_EIGHT_ZEROS & ad_plus_bc_data_rrrr( 31 downto 0) & PAD_EIGHT_ZEROS & ac_minus_bd_data_rrrr(31 downto 0);
   addr_out_o 	   <= PAD_NINE_ZEROS & addr_int;		                   
 end architecture struct;	

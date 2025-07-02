@@ -38,6 +38,7 @@ entity h_hstar_inbound_state_machine_controller is
                             
         master_mode_i       : in std_logic_vector(4 downto 0);   --=> master_mode_i,-- : in std_logic_vector(4 downto 0);                                                                                      
         valid_i             : in std_logic;                      --=> port_1_valid_in_i,  -- : in std_logic; --
+        start_output_i      : in std_logic;
                             
         s_axis_data_tlast_o : out std_logic;                     --=> s_axis_a_tlast_int,-- : out std_logic;
                             
@@ -100,6 +101,7 @@ BEGIN
    st_mach_controller : process(
    
    	      valid_i,
+   	      start_output_i,
        	  master_mode_i,
        	  ps_controller
        ) begin
@@ -111,7 +113,7 @@ BEGIN
             	decoder_st_d <= "0001"; --INIT State
             	
             	if( (master_mode_i = "00011" ) and
-            		  (valid_i = '1') 
+            		  (start_output_i = '1') 
             		) then
             		ns_controller <= state_gen_addr;
             	else
@@ -124,7 +126,7 @@ BEGIN
             	decoder_st_d <= "0010"; 
             	
             	
-              if( valid_i = '1') then
+              if( start_output_i = '1') then
                 ns_controller <= state_gen_addr;
               else
               	ns_controller <= state_reset_addr;
