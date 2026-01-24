@@ -5,45 +5,37 @@ use std.textio.all;
 use ieee.std_logic_textio.all;
 
 
-entity mem_transpose_module is
-	               -- debug signals : All signals go to mem,gen_proc, and master
-                  -- DEBUG_STATE
-                  -- := 000 -> NO debug 
-                  -- := 001 -> DEBUG H      -> {Load F(v), Load H}      : trans  & f_H memory
-                  -- := 010 -> DEBUG Inv A  -> {Load (H x F(v))}        : trans memory  
-                  -- := 011 -> DEBUG Av-B   -> {Load Av, Load B}        : trans & b memory
-                  -- := 100 -> DEBUG AH     -> {Load crop&pad(AV-b)}    : trans memory
-                  -- := 101 -> DEBUG H*     -> {Load FH(v)), Load H*}   : trans & f_adj memory
-                  -- := 110 -> DEBUG InvAH  -> {Load (H* x FH(v))}      : trans memory
-                  -- := 111 -> DEBUG update -> {Load Grad, Vk}          : trans & vk memory
+entity mem_test_module is
+	               
   generic(
   	       debug_capture_file_i : integer := 0;
-  	       debug_state_i : in integer := 0;         -- = 0 no write = 1 write
-  	       g_USE_DEBUG_MODE_i : in natural := 0   -- To use COE file
+  	       debug_state_i : in integer := 0;         -- = 0 no write = 1 write.
+  	       g_USE_DEBUG_MODE_i : in natural := 0   -- To use COE file.
   	     );
   
   Port (
     clk_i : in STD_LOGIC; 
     rst_i : in STD_LOGIC;
-    master_mode_i : in STD_LOGIC_VECTOR ( 4 downto 0 );
+    control_reg_i : in STD_LOGIC_VECTOR(7 downto 0)
+
+    --master_mode_i : in STD_LOGIC_VECTOR ( 4 downto 0 );
     ena : in STD_LOGIC;
     wea : in STD_LOGIC_VECTOR ( 0 to 0 );
-    addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
+    addra : in STD_LOGIC_VECTOR ( 18 downto 0 ); -- 8 locations of 256x256 memory
     dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
-    douta : out STD_LOGIC_VECTOR ( 79 downto 0 );
-    vouta : out STD_LOGIC;
-    dbg_qualify_state_i : in STD_LOGIC
+    --vouta : out STD_LOGIC;
+    --dbg_qualify_state_i : in STD_LOGIC;
+    enb : in STD_LOGIC;
+    web : in STD_LOGIC_VECTOR ( 0 to 0 );
+    addrb : in STD_LOGIC_VECTOR ( 18 downto 0 ); -- 8 locations of 256x256 memory
+    doutb : out STD_LOGIC_VECTOR ( 79 downto 0 );
+    
   );
 
 end mem_transpose_module;
 
 architecture stub of mem_transpose_module is
---attribute syn_black_box : boolean;
---attribute black_box_pad_pin : string;
---attribute syn_black_box of stub : architecture is true;
---attribute black_box_pad_pin of stub : architecture is "clka,ena,wea[0:0],addra[7:0],dina[79:0],clkb,enb,addrb[7:0],doutb[79:0]";
---attribute x_core_info : string;
---attribute x_core_info of stub : architecture is "blk_mem_gen_v8_4_5,Vivado 2022.2";
+
 
 -- For verification and synthesis
 signal data_out_r                   : std_logic_vector( 79 downto 0);
@@ -51,7 +43,8 @@ signal data_out_no_debug_default_r  : std_logic_vector( 79 downto 0);
 signal data_out_no_debug_fwd_2d_A_r        : std_logic_vector( 79 downto 0);
 signal enable_read_rr               : std_logic;
 
-COMPONENT blk_mem_gen_debug_h_transpose_mem_REGEN2_LL_0
+
+COMPONENT blk_mem_gen_test_load_image
 	Port ( 
     clka : in STD_LOGIC;
     ena : in STD_LOGIC;
@@ -62,7 +55,7 @@ COMPONENT blk_mem_gen_debug_h_transpose_mem_REGEN2_LL_0
   );
  END COMPONENT;
 
-COMPONENT blk_mem_gen_debug_h_transpose_mem_REGEN_LL_0
+COMPONENT blk_mem_gen_test_mod1_image
 	Port ( 
     clka : in STD_LOGIC;
     ena : in STD_LOGIC;
@@ -73,7 +66,7 @@ COMPONENT blk_mem_gen_debug_h_transpose_mem_REGEN_LL_0
   );
  END COMPONENT;
 
-COMPONENT blk_mem_debug_h_transpose_seq_mem_LL_0 is
+COMPONENT blk_mem_gen_test_mod2_image 
   Port ( 
     clka : in STD_LOGIC;
     ena : in STD_LOGIC;
@@ -329,12 +322,11 @@ signal state_counter_4_r                : integer;
 begin
 	
   -----------------------------------------
-  -- Transpose mem_intf
+  -- mem_intf
   -----------------------------------------.	
-  --g_use_u1_no_debug : if debug_state_i = 0 generate -- default condition
- g_use_u1_no_debug : if g_USE_DEBUG_MODE_i = 0 generate -- default condition
+ 
  		
-  	u1 : entity work.blk_mem_image_gen_LL_0 
+  	u1 : entity blk_mem_gen_test_load_image  --- Emulating H
   	PORT MAP ( 
   	clka  => clk_i,                                      --clka : in STD_LOGIC;
   	--ena   => ena,                                      --ena : in STD_LOGIC;
@@ -342,56 +334,33 @@ begin
   	wea   => wea,                                        --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
   	addra => addra,                                      --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
   	dina  => dina,                                       --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
-  	douta => data_out_no_debug_default_r                 --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
+  	douta => data_out_load                 --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
   	);
 
-    data_out_r <= data_out_no_debug_default_r;
-    
- end generate g_use_u1_no_debug;
- 
- write_control_from_generic <= std_logic_vector(to_unsigned(debug_state_i,write_control_from_generic'length));
- 	
- 	
-g_use_u2_debug_h_transpose_mem : if g_USE_DEBUG_MODE_i = 1 generate -- debug H
 	
-u2 : blk_mem_gen_debug_h_transpose_mem_REGEN2_LL_0 -- 256x256 entries of 2 + 3i( single float)
+u2 : entity blk_mem_gen_test_mod1_image       -- emulating H*
   PORT MAP ( 
   clka => clk_i, --clka : in STD_LOGIC;
   ena => ena_to_mem_d, --ena : in STD_LOGIC;
-  wea => write_control_from_generic, --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+  wea => wea, --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
   addra => addra, --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
   dina  => dina, --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
-  douta => data_out_no_debug_fwd_2d_A_r --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
+  douta => data_out_mod1 --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
   );
- 
---u2 : blk_mem_gen_debug_h_transpose_mem_REGEN_LL_0 -- 256x256 entries of 2 + 3i( single float)
---  PORT MAP ( 
---  clka => clk_i, --clka : in STD_LOGIC;
---  ena => ena_to_mem_d, --ena : in STD_LOGIC;
---  wea => write_control_from_generic, --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
---  addra => addra, --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
---  dina  => dina, --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
---  douta => data_out_no_debug_fwd_2d_A_r --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
---  );
+
 
   data_out_r <= data_out_no_debug_fwd_2d_A_r;
 
---u2 : entity blk_mem_debug_h_transpose_seq_mem_LL_0 
---u2 : blk_mem_debug_h_transpose_seq_mem_LL_0 
-
---  PORT MAP ( 
---    clka  => clk_i,--clka : in STD_LOGIC;
---    ena   => ena_to_mem_d,--ena : in STD_LOGIC;
---    wea   => write_control_from_generic,--wea : in STD_LOGIC_VECTOR ( 0 to 0 );
---    addra => addra,--addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
---    dina  => dina,--dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
---    douta => data_out_no_debug_fwd_2d_A_r--douta : out STD_LOGIC_VECTOR ( 79 downto 0 ).
---  );
-
-
-
-end generate g_use_u2_debug_h_transpose_mem;
-
+u3 : entity  blk_mem_gen_test_mod2_image   ---- emulating B
+  	PORT MAP ( 
+  	clka  => clk_i,                                      --clka : in STD_LOGIC;
+  	--ena   => ena,                                      --ena : in STD_LOGIC;
+  	ena   => ena_to_mem_d,                               --ena : in STD_LOGIC;
+  	wea   => wea,                                        --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+  	addra => addra,                                      --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
+  	dina  => dina,                                       --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
+  	douta => data_out_mod2                 --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
+  	);
 
  
  -- kludge fix to read from transpose the last sample
@@ -414,6 +383,78 @@ end generate g_use_u2_debug_h_transpose_mem;
  end process delay_ena_to_mem;
  
  ena_to_mem_d <= ena or ena_to_mem_r or ena_to_mem_rr;
+ 
+ 
+ mux_mem : process( ) 
+ 	
+ 	begin
+ 		
+ 		case decode_mux is
+ 			
+ 			when '0' =>
+ 				
+ 				mult_input_from_mod_d <= data_out_mod1_r;
+ 				
+ 				
+ 			when  '1' =>
+ 				
+ 				mult_input_from_mod_d <= data_out_mod2_r;
+ 				
+ 			when others =>
+ 				
+ 				mult_input_from_mod_d <= (others=> '0');
+ 					
+ 	 end case;
+ end process;
+ 
+ -----------------------------------------
+ -- mult
+ -----------------------------------------.
+ u4 :entity floating_point_0 
+  PORT MAP ( 
+  aclk => clk_i,  											--aclk : in STD_LOGIC;
+  s_axis_a_tvalid =>   									--s_axis_a_tvalid : in STD_LOGIC;
+  s_axis_a_tready =>   									--s_axis_a_tready : out STD_LOGIC;
+  s_axis_a_tdata =>   									--s_axis_a_tdata : in STD_LOGIC_VECTOR ( 31 downto 0 );
+  s_axis_b_tvalid =>   									--s_axis_b_tvalid : in STD_LOGIC;
+  s_axis_b_tready =>   									--s_axis_b_tready : out STD_LOGIC;
+  s_axis_b_tdata =>   									--s_axis_b_tdata : in STD_LOGIC_VECTOR ( 31 downto 0 );
+  m_axis_result_tvalid =>   						--m_axis_result_tvalid : out STD_LOGIC;
+  m_axis_result_tready =>   						--m_axis_result_tready : in STD_LOGIC;
+  m_axis_result_tdata =>   							--m_axis_result_tdata : out STD_LOGIC_VECTOR ( 31 downto 0 )
+  );
+
+
+ 
+ -----------------------------------------
+ -- state machine
+ -----------------------------------------
+ 
+    U5 : entity mem_test_st_machine_controller
+    GENERIC MAP(
+	    --g_USE_DEBUG_i  =>  ONE) -- 0 = no debug , 1 = debug
+	      g_USE_DEBUG_MODE_i  =>  g_USE_DEBUG_MODE_i -- 0 = no debug , 1 = debug
+    )
+    
+    PORT MAP(
+    	
+    	  clk_i                                     => clk_i, --: in std_logic;
+        rst_i               	                    => rst_i, --: in std_logic;
+        
+        control_reg_i                             => 
+                                                    
+        enb_input_mem_o                           => master_mode_i, --: in std_logic_vector(4 downto 0);                                                                                        
+        web_input_mem_o                           => mem_init_start_i ,--: in std_logic;
+        addrb_input_mem_o                         =>
+        
+        ena_output_mem_o                          => master_mode_i, --: in std_logic_vector(4 downto 0);                                                                                        
+        wea_output_mem_o                          => mem_init_start_i ,--: in std_logic;
+        addra_output_mem_o                        =>  
+       
+                                             
+                                           
+    );
+ 
 
 -----------------------------------------------------------------
 -----------------------------------------------------------------    
@@ -455,7 +496,7 @@ end generate g_use_u2_debug_h_transpose_mem;
  enable_read  <= ena and not(wea(0));
  	 	
  	
- delay_enable_read_reg  : process(clk_i, rst_i)
+ delay_enable_read_reg  : process(clk_i, rst_i)                                                                                                                              
  		begin
  			if( rst_i = '1') then
  				enable_read_r     <= '0';
@@ -940,7 +981,7 @@ data_read : process(clear_state_counter_2_rr)
    if( (clear_state_counter_2_rr  = '1') and (enable_file_capture(0) = '1') ) then -- Have completed MAX_SAMPLE FFT Computations( 1-D)o
         --write_fft_1d_raw_done <= writeToFileMemRawContents(fft_raw_mem,fft_bin_seq_addr);	
           write_fft_1d_raw_done <= writeToFileMemRawContents(fft_raw_mem);	
-       report "Module: Mem Transpose -> Done Reads for one frame";
+       report " Done Reads for one frame";
    end if;
 end process data_read;
 
@@ -952,7 +993,7 @@ data_h_read : process(clear_state_counter_2_rr)
   begin
    if ( (clear_state_counter_2_rr  = '1') and (master_mode_i = "00011") and (enable_file_capture(0) = '1')  ) then
         write_h_init_done   <= writeToFileMemRawContentsHRead(h_read_mem);	
-       report "Module: Mem Transpose -> Done Reads for one frame of H Init";
+       report " Done Reads for one frame of H Init";
    end if;
 end process data_h_read;
 
@@ -964,7 +1005,7 @@ data_h_write : process(clear_state_counter_2_rr)
   begin
    if ( (clear_state_counter_2_rr  = '1') and (master_mode_i = "00011") and (enable_file_capture(0) = '1')  ) then
         write_h_mult_done   <= writeToFileMemRawContentsHWrite(h_write_mem);	
-       report "Module: Mem Transpose -> Done writes for one frame of H Mult";
+       report " Done writes for one frame of H Mult";
    end if;
 end process data_h_write;
 
