@@ -502,15 +502,13 @@ end generate g_use_u2_debug_h_transpose_mem;
           state_counter_2_r       <=  0;
           --state_counter_2_rr      <=  0;
           --state_counter_2_rrr     <=  0;
-      elsif(clear_state_counter_2_rr = '1') then
+      --elsif(clear_state_counter_2_rr = '1') then
+      elsif(falling_edge_for_last_read_r = '1') then
           state_counter_2_r       <=  0;
           --state_counter_2_rr      <=  0;
           --state_counter_2_rrr     <=  0;
       elsif( clk_i'event and clk_i = '1') then
-         if (( falling_valid_event_rrr = '1') and (clear_state_counter_3_r = '1')) then -- clear_state_counter_3_r = 1 after
-         	                                                                             -- 2nd read falling edge;
-         	                                                                             -- 1st falling edge no data written
-         	                                                                             -- to memory yet
+         if ( falling_valid_event_rrr = '1') then 
           state_counter_2_r       <=  state_counter_2_r + 1;
           --state_counter_2_rr      <=  state_counter_2_r;
           --state_counter_2_rrr     <=  state_connter_2_rr;
@@ -518,7 +516,7 @@ end generate g_use_u2_debug_h_transpose_mem;
       end if;
   end process state_counter_2;
   
-   ----------------------------------------
+   ----------------------------------------.
   -- clear counter fast address
   ----------------------------------------.
     clear_state_counter_1_reg : process(clk_i, rst_i)
@@ -591,9 +589,8 @@ end generate g_use_u2_debug_h_transpose_mem;
   
   -- register signal for: Read state ( filter out all writes)
   
-  falling_valid_event_d <= (falling_valid_event_int and qualify_state_int) or
-  	                       (falling_edge_for_last_read_r); -- special logic to 
-                                                           -- capture read state
+  falling_valid_event_d <= (falling_valid_event_int and qualify_state_int);
+  	
   delay_qualify_state_reg : process(clk_i,rst_i)
   	begin
   		if(rst_i = '1') then
@@ -712,7 +709,8 @@ end generate g_use_u2_debug_h_transpose_mem;
  				  ----------------------------------------  	
          st_mach_controller : process(
        	       falling_edge_for_last_write_r,
-       	       state_counter_4_r,    	  
+       	       --state_counter_4_r,
+       	       state_counter_1_r,    	  
        	       ps_controller
             ) begin
        	
@@ -736,7 +734,8 @@ end generate g_use_u2_debug_h_transpose_mem;
                  	
                  	 decoder_st_d <= "10";
                  	 
-                 	 if( state_counter_4_r = 253) then -- This produces a correct number of writes
+                 	 --if( state_counter_4_r = 253) then -- This produces a correct number of writes
+                 	   if( state_counter_1_r = 253) then
                  	 	
                  	 	 ns_controller <= state_quies;
                  	 	 
