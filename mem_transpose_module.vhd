@@ -1,8 +1,10 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-USE ieee.numeric_std.ALL;
+--USE ieee.numeric_std.ALL;
+use IEEE.NUMERIC_STD.ALL;
 use std.textio.all;
 use ieee.std_logic_textio.all;
+--use IEEE.NUMERIC_STD.ALL;
 
 
 entity mem_transpose_module is
@@ -87,11 +89,15 @@ COMPONENT blk_mem_debug_h_transpose_seq_mem_LL_0 is
 -------------------------------------------------
 
 constant MAX_SAMPLES : integer := 2**8;  -- maximum number of samples in a frame
-constant IP_WIDTH    : integer := 34;
+constant MAX_LINEAR_SAMPLES : integer := 2**16;
+constant MAX_SAMPLES_MINUS_ONE: integer := MAX_SAMPLES -1;
+constant IP_WIDTH    : integer := 32;
 constant MEM_WIDTH   : integer := IP_WIDTH*2 -1;
 type     MEM_ARRAY is array(0 to  MAX_SAMPLES-1,0 to MAX_SAMPLES-1) of std_logic_vector(MEM_WIDTH downto  0);
+type     MEM_LINEAR is array(0 to  MAX_LINEAR_SAMPLES-1) of std_logic_vector(MEM_WIDTH downto  0);
 type     bit_addr is array ( 0 to MAX_SAMPLES-1) of integer;
 type     result_type is ( '0', '1');
+signal   fft_raw_wr_mem : MEM_LINEAR;
 signal   fft_raw_mem : MEM_ARRAY;
 signal   h_read_mem  : MEM_ARRAY;
 signal   h_write_mem : MEM_ARRAY;
@@ -99,9 +105,12 @@ file     write_file    : text;
 signal   dummy         : std_logic := '1';
 signal   dummy_h_read  : std_logic := '1';
 signal   dummy_h_write : std_logic := '1';
+signal   write_fft_1d_wr_raw_done : result_type;
 signal   write_fft_1d_raw_done : result_type;
 signal   write_h_init_done     : result_type;
 signal   write_h_mult_done     : result_type;
+
+signal   addra_int             : integer;
 
 constant PAD_ZEROS  : std_logic_vector(5 downto 0) := (others=> '0');
 	
@@ -136,6 +145,9 @@ signal qualify_state_rr             : std_logic;
 signal qualify_state_rrr            : std_logic;
 signal qualify_state_rrrr           : std_logic;
 signal qualify_state_int            : std_logic;
+
+signal process_write_r              : std_logic;
+signal process_write_d              : std_logic;
 
 -- signals for kludge
 signal ena_to_mem_r                 : std_logic;
@@ -181,34 +193,46 @@ signal falling_edge_for_last_read_r     : std_logic;
                   
 	
 	-------------------------------------------------
-	-- Function Write to a file the mem contents to check
+	-- Function Write to a file the mem contents to check 1D FFT
 	-------------------------------------------------
-	--impure function writeToFileMemRawContents(  signal fft_mem   : in MEM_ARRAY;
-	--	                                          signal fft_bin_center_addr : in bit_addr) return result_type is
+	impure function writeToFileMemRawContentsFFTWrite(  signal fft_mem   : in MEM_LINEAR) return result_type is
+  
+	   variable result       : result_type;    
+	   variable mem_line_var : line;
+	   variable done         : integer;
+	   variable data_write_var : bit_vector(63 downto 0);
+	   begin
+	     file_open(write_file,"MEM_TRANSPOSE_row_wr_mem_raw_fft_1d_float_vectors.txt",write_mode);
+	     report" File Opened for writing ";
+	          for i in  0 to MAX_LINEAR_SAMPLES-1 loop
+	                  data_write_var := to_bitvector(fft_mem(i));
+	                  write(mem_line_var ,data_write_var);
+	                  writeline(write_file,mem_line_var);                  
+	          end loop;
+	      done := 1;
+	      file_close(write_file);
+	      report" Done writing to file ";	  
+  	    return result;  	       
+  end function  writeToFileMemRawContentsFFTWrite;
+	
+	
+	-------------------------------------------------
+	-- Function Write to a file the mem contents to check 1D FFT after Transpose Read
+	-------------------------------------------------
   impure function writeToFileMemRawContents(  signal fft_mem   : in MEM_ARRAY) return result_type is
   
 	   variable result       : result_type;    
 	   variable mem_line_var : line;
 	   variable done         : integer;
-	   --variable k            : integer;
-	   --variable fft_spec     : MEM_ARRAY;
-	   variable data_write_var : bit_vector(67 downto 0);
+	   variable data_write_var : bit_vector(63 downto 0);
 	   begin
-	   	 	--for i in  0 to MAX_SAMPLES-1 loop
-	      --   for j in 0 to MAX_SAMPLES-1 loop
-	      --      k := fft_bin_center_addr(j);
-	      --      fft_spec(i,k) := (fft_mem(i,j));
-	      --   end loop;
-	      --end loop;
-	     file_open(write_file,"col_rd_mem_raw_vectors.txt",write_mode);
+	     file_open(write_file,"MEM_TRANSPOSE_col_rd_mem_raw_fft_1d_float_vectors.txt",write_mode);
 	     report" File Opened for writing ";
 	          for i in  0 to MAX_SAMPLES-1 loop
 	              for j in 0 to MAX_SAMPLES-1 loop
-	                  --data_write_var := to_bitvector(fft_spec(i,j));
 	                  data_write_var := to_bitvector(fft_mem(i,j));
 	                  write(mem_line_var ,data_write_var);
 	                  writeline(write_file,mem_line_var);                  
-	                  --report" Start writing to file ";
 	              end loop;
 	          end loop;
 	      done := 1;
@@ -228,7 +252,7 @@ signal falling_edge_for_last_read_r     : std_logic;
 	   variable done         : integer;
 	   --variable k            : integer;
 	   --variable fft_spec     : MEM_ARRAY;
-	   variable data_write_var : bit_vector(67 downto 0);
+	   variable data_write_var : bit_vector(63 downto 0);
 	   begin
 	   	 	--for i in  0 to MAX_SAMPLES-1 loop
 	      --   for j in 0 to MAX_SAMPLES-1 loop
@@ -261,7 +285,7 @@ signal falling_edge_for_last_read_r     : std_logic;
 	   variable result       : result_type;    
 	   variable mem_line_var : line;
 	   variable done         : integer;
-	   variable data_write_var : bit_vector(67 downto 0);
+	   variable data_write_var : bit_vector(63 downto 0);
 	   begin
 	     file_open(write_file,"col_wr_h_mem_vectors.txt",write_mode);
 	     report" File Opened for writing ";
@@ -410,6 +434,22 @@ end generate g_use_u2_debug_h_transpose_mem;
 -----------------------------------------------------------------
 -----------------------------------------------------------------
 -----------------------------------------------------------------
+----------------------------------------
+-- Write control
+----------------------------------------.
+process_write_d <= not(master_mode_i(2)) and not(master_mode_i(1)) and master_mode_i(0);
+	
+	proc_write_reg : process(clk_i,rst_i)
+		begin
+			if(rst_i = '1') then
+				process_write_r <= '0';
+			elsif(clk_i'event and clk_i = '1')then
+				process_write_r <= process_write_d;
+			end if;
+				
+	end process proc_write_reg;
+
+
 
 ----------------------------------------
 -- Read control
@@ -492,7 +532,7 @@ end generate g_use_u2_debug_h_transpose_mem;
   ----------------------------------------.
   decode_terminal_count : process(state_counter_2_r)
   	begin
-  		if (  state_counter_2_r = MAX_SAMPLES ) then
+  		if (  state_counter_2_r = MAX_SAMPLES_MINUS_ONE ) then
   			clear_state_counter_2_d <= '1';
   	  else
   	  	clear_state_counter_2_d <= '0';
@@ -709,9 +749,28 @@ end generate g_use_u2_debug_h_transpose_mem;
   		     end if;
   			
          end process falling_edge_for_last_read_reg_proc;	
+         
+         
+  -----------------------------------------------------------------------
+  -- Store Write inputs into Memory
+  -----------------------------------------------------------------------. 
+  
+  addra_int <= to_integer(unsigned(addra));
+        
+  RamProcWrRawData : process(clk_i,rst_i)
+
+    begin
+  	  if ( rst_i = '1' ) then       
+         dummy <= '1';
+      	
+  	  elsif enable_write = '1' then 		  
+  		  fft_raw_wr_mem(addra_int) <= dina(71 downto 40) & dina(31 downto 0);  				  			  				  
+				  
+  		end if;
+   end process RamProcWrRawData;
     
 
-   -----------------------------------------------------------------------
+  -----------------------------------------------------------------------
   -- Store read outputs from memory; We are reading an array built by  process record_outputs
   -----------------------------------------------------------------------.
   --Note:
@@ -729,7 +788,7 @@ end generate g_use_u2_debug_h_transpose_mem;
          dummy <= '1';
       	
   	  elsif enable_read_rr = '1' then 		  
-  		  fft_raw_mem(state_counter_1_rrr,state_counter_2_r) <= data_out_r(73 downto 40) & data_out_r(33 downto 0);  				  			  				  
+  		  fft_raw_mem(state_counter_1_rrr,state_counter_2_r) <= data_out_r(71 downto 40) & data_out_r(31 downto 0);  				  			  				  
 				  
   		end if;
    end process RamProcRawData;  
@@ -739,7 +798,7 @@ end generate g_use_u2_debug_h_transpose_mem;
   	  if ( rst_i = '1' ) then
          dummy_h_read <= '1';
      elsif( (enable_read_rr = '1') and (master_mode_i = "00011") )then 			   		 
-   		    h_read_mem(state_counter_2_r,state_counter_1_rrr) <= data_out_r(73 downto 40) & data_out_r(33 downto 0);  				  			  
+   		    h_read_mem(state_counter_2_r,state_counter_1_rrr) <= data_out_r(71 downto 40) & data_out_r(31 downto 0);  				  			  
   				  			  
   		end if;
    end process RamProcRawHReadData;
@@ -752,11 +811,11 @@ end generate g_use_u2_debug_h_transpose_mem;
      	                                                                      -- because we enable WRITING to this buffer h_write_mem
      	                                                                      -- After we have done a enable_write_rr to the real
      	                                                                      -- memory in the FPGA.  		  
-   		    h_write_mem(state_counter_2_r,state_counter_1_rrr) <= dina(73 downto 40) & dina(33 downto 0); 
+   		    h_write_mem(state_counter_2_r,state_counter_1_rrr) <= dina(71 downto 40) & dina(31 downto 0); 
    		    	
    	 elsif( (enable_last_read_r = '1') and (master_mode_i = "00011") ) then
    		
-   		    h_write_mem(state_counter_2_r,state_counter_1_rrr) <= dina(73 downto 40) & dina(33 downto 0); 
+   		    h_write_mem(state_counter_2_r,state_counter_1_rrr) <= dina(71 downto 40) & dina(31 downto 0); 
  				  			  
   				  			  
   	 end if;
@@ -767,6 +826,18 @@ end generate g_use_u2_debug_h_transpose_mem;
 	-------------------------------------------------  
 	
 enable_file_capture <= std_logic_vector(to_unsigned(debug_capture_file_i,enable_file_capture'length));
+	
+data_write : process(process_write_r)
+
+  --report " This is a read of one frame
+
+  begin
+   if( (process_write_r  = '1') and (enable_file_capture(0) = '1') ) then -- Have completed MAX_SAMPLE FFT Computations( 1-D)
+       write_fft_1d_wr_raw_done <= writeToFileMemRawContentsFFTWrite(fft_raw_wr_mem);	
+       report "Module: Mem Transpose -> Done write for one frame";
+   end if;
+end process data_write;
+
 	
 data_read : process(clear_state_counter_2_rr)
 
