@@ -45,6 +45,23 @@ entity fista_accel_top is
                                                  -- done writing to mem buffer by FFT state mach    
     dbg_mem_init_start_o               : out std_logic;
     
+    -- AXI interface backend signals
+    axi_intf_sram_addr_int_debug_i   			     : in std_logic_vector( 15 downto 0); 
+    axi_intf_sram_t1_mem_en_int_debug_i        : in std_logic;                       -- t1 mem
+    axi_intf_sram_t1_mem_wr_en_vec_int_debug_i : in std_logic_vector( 0 downto 0);
+    	
+    axi_intf_stop_dec_debug_i     : in std_logic_vector(3 downto 0);    -- When to stop processing
+    axi_intf_command_debug_i      : in std_logic;                        -- switch to debug for muxes.
+    
+    axi_intf_start_1_debug_i      : in std_logic;
+    axi_intf_start_2_debug_i      : in std_logic;
+    
+    axi_intf_restart_debug_i      : in std_logic;
+    
+    axi_intf_stop_debug_o         : out std_logic := '0';
+    
+    
+    
     -- app interface to ddr controller
     app_rdy_i           	: in std_logic;
     app_wdf_rdy_i       	: in std_logic;
@@ -129,6 +146,10 @@ architecture struct of fista_accel_top is
   signal dummy_input_1                         : std_logic := '1';
   signal dummy_input_2                         : std_logic := '1';
   signal dummy_input_3                         : std_logic_vector(0 downto 0) := (others=> '0');
+  	
+  signal sram_t1_mem_addr_int_mux_select       : std_logic_vector(15 downto 0);
+  signal sram_t1_mem_wr_en_vec_int_mux_select  : std_logic_vector(0 downto 0);
+  signal sram_t1_mem_en_int_mux_select         : std_logic;
   		                                        
   signal sram_wr_en_vec_int                    : std_logic_vector(0 downto 0);
   signal sram_wr_en_int                        : std_logic;
@@ -450,7 +471,75 @@ begin
                                
         master_mode_o          => master_mode_int--: out std_logic_vector( 4 downto 0)
                                        
-    ); 
+    );
+    
+    -- ?? Need to add mux for debug select to
+    -- either allow mc bus to go thru or the mc_state = "11110" mto 
+    -- select the debug control over memories
+    
+    --?? Need to add a mux for data bus 
+    
+    -----------------------------------------
+    -- Muxes into Tranpose Memory #1
+    -----------------------------------------
+    mux_to_addr_trans_mem_1 : process(master_mode_int,
+    	                                sram_addr_int,
+    	                                axi_intf_sram_addr_int_debug_i)
+    
+    begin 
+    	
+    	case master_mode_int is
+    	
+    		when "00000" => -- 1d fft
+    			sram_t1_mem_addr_int_mux_select <= sram_addr_int;
+    		
+    		when "00001" => -- 1d fft
+    			sram_t1_mem_addr_int_mux_select <= sram_addr_int;
+    		
+    		when "11110" => -- debug mode
+    			sram_t1_mem_addr_int_mux_select <= axi_intf_sram_addr_int_debug_i;
+    		
+    		
+    		when others =>
+    			sram_t1_mem_addr_int_mux_select <= (others=> '0');
+    			
+      end case;
+    end process mux_to_addr_trans_mem_1;
+    
+    
+    
+    mux_to_control_trans_mem_1 : process(master_mode_int,
+    	                                   sram_en_int,
+    	                                   sram_wr_en_vec_int,
+    	                                   axi_intf_sram_t1_mem_en_int_debug_i,
+    	                                   axi_intf_sram_t1_mem_wr_en_vec_int_debug_i)
+    
+    begin 
+    	
+    	case master_mode_int is
+    	
+    		when "00000" => -- 1d fft
+    			sram_t1_mem_en_int_mux_select 			 <= sram_en_int;
+    			sram_t1_mem_wr_en_vec_int_mux_select <= sram_wr_en_vec_int;
+    			
+    		when "00001" => -- 1d fft
+    			sram_t1_mem_en_int_mux_select 			 <= sram_en_int;
+    			sram_t1_mem_wr_en_vec_int_mux_select <= sram_wr_en_vec_int; 
+    		
+    		
+    		when "11110" => -- debug mode
+    			sram_t1_mem_en_int_mux_select        <= axi_intf_sram_t1_mem_en_int_debug_i;
+    		  sram_t1_mem_wr_en_vec_int_mux_select <= axi_intf_sram_t1_mem_wr_en_vec_int_debug_i;
+    		
+    		when others =>
+    			sram_t1_mem_en_int_mux_select <= '0';
+    			sram_t1_mem_wr_en_vec_int_mux_select <= (others=> '0');
+    			
+      end case;
+    end process mux_to_control_trans_mem_1;
+    		
+    		
+    		
     
      
     -----------------------------------------
@@ -461,7 +550,7 @@ begin
   	  	
   u6 : entity work.mem_transpose_module
   GENERIC MAP(
-	    	debug_capture_file_i => ONE_INTEGER,           -- capture file
+	    	debug_capture_file_i => ZERO_INTEGER,           -- capture file
 	      debug_state_i  =>  ZERO_INTEGER,               -- no writeback to transpose memory
 	      g_USE_DEBUG_MODE_i => g_USE_DEBUG_MODE_i       -- debug state
 	) 
@@ -470,9 +559,9 @@ begin
   clk_i => clk_i,
   rst_i => rst_i,                                        --clka : in STD_LOGIC;
   master_mode_i =>   master_mode_int,                    --: in std_logic_vector(4 downto 0);
-  ena   => sram_en_int,                                  --ena : in STD_LOGIC;
-  wea   => sram_wr_en_vec_int,                           --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
-  addra => sram_addr_int,                                --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
+  ena   => sram_t1_mem_en_int_mux_select,                       --ena : in STD_LOGIC;
+  wea   => sram_t1_mem_wr_en_vec_int_mux_select,                --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+  addra => sram_t1_mem_addr_int_mux_select,                     --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
   dina  => data_to_mem_intf_fr_mem_in_buffer,            --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
   douta => data_fr_mem_intf_to_gen_proc,                 --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
   vouta => valid_fr_mem_intf_to_gen_proc,

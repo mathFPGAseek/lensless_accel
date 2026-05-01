@@ -154,8 +154,18 @@ module example_top #
     output                 dbg_fdbk_fifo_rd_en_o,                  
     input                  dbg_fdbk_fifo_full_i,                   
     input                  dbg_fdbk_fifo_empty_i,                                   
-    output                 fista_accel_valid_rd_o                 
-    );
+    output                 fista_accel_valid_rd_o,
+    
+    input                  axi_intf_sram_addr_int_debug_i,                                                                                                                                                              
+    input	                 axi_intf_sram_t1_mem_en_int_debug_i,                                                                       
+    input	                 axi_intf_sram_t1_mem_wr_en_vec_int_debug_i,                                                                
+    input	                 axi_intf_stop_dec_debug_i,                                                                                 
+    input	                 axi_intf_command_debug_i,                                                                                  
+    input	                 axi_intf_start_1_debug_i,                                                                                  
+    input	                 axi_intf_start_2_debug_i,                                                                                  
+    input	                 axi_intf_restart_debug_i,                                                                                  
+    output	               axi_intf_stop_debug_o                          
+    );                    
 
 
   localparam  APP_ADDR_WIDTH = 29;
@@ -248,16 +258,26 @@ assign c0_ddr4_app_rdy = 1'b1;
          .dbg_fdbk_fifo_full_i                    (dbg_fdbk_fifo_full_i), 
          .dbg_fdbk_fifo_empty_i                   (dbg_fdbk_fifo_empty_i),                 
                      
-         .fista_accel_valid_rd_o                  (fista_accel_valid_rd_o) 
-                                     
-      );
-   
-
-
-endmodule
-
-
-
+         .fista_accel_valid_rd_o                  (fista_accel_valid_rd_o),
+          
+  	     .axi_intf_sram_addr_int_debug_i                (axi_intf_sram_addr_int_debug_i),                                                                                                                                                         
+    	   .axi_intf_sram_t1_mem_en_int_debug_i           (axi_intf_sram_t1_mem_en_int_debug_i),                                                                       
+    	   .axi_intf_sram_t1_mem_wr_en_vec_int_debug_i    (axi_intf_sram_t1_mem_wr_en_vec_int_debug_i),                                                                
+    	   .axi_intf_stop_dec_debug_i                     (axi_intf_stop_dec_debug_i),                                                                                 
+    	   .axi_intf_command_debug_i                      (axi_intf_command_debug_i),                                                                                  
+    	   .axi_intf_start_1_debug_i                      (axi_intf_start_1_debug_i),                                                                                  
+    	   .axi_intf_start_2_debug_i                      (axi_intf_start_2_debug_i),                                                                                  
+    	   .axi_intf_restart_debug_i                      (axi_intf_restart_debug_i),                                                                                  
+    	   .axi_intf_stop_debug_o                          (axi_intf_stop_debug_o)                                                                                      
+                                                      
+      );                                              
+                                                      
+                                                      
+                                                      
+endmodule                                             
+                                                      
+                                                      
+                                                      
 
 
 

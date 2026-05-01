@@ -207,7 +207,25 @@ module example_tb #(
   input                       dbg_fdbk_fifo_empty_i,           
                                                          
                               // output control                
-  output                      fista_accel_valid_rd_o          
+  output                      fista_accel_valid_rd_o,
+  
+  input 										axi_intf_sram_addr_int_debug_i,
+     			    
+  input  										axi_intf_sram_t1_mem_en_int_debug_i,
+          
+  input  										axi_intf_sram_t1_mem_wr_en_vec_int_debug_i,
+   
+  input  										axi_intf_stop_dec_debug_i,
+       							
+  input  										axi_intf_command_debug_i,
+        							
+  input  										axi_intf_start_1_debug_i,
+        							
+  input  										axi_intf_start_2_debug_i,
+        							
+  input  										axi_intf_restart_debug_i, 
+       							
+  output  									axi_intf_stop_debug_o         							
                                                                                            
   );
 
@@ -232,6 +250,17 @@ module example_tb #(
     .dbg_fft_flow_tlast_i             (dbg_fft_flow_tlast_i), //: in std_logic; -- This is a multiple clock pulse when 
                                          //         -- done writing to mem buffer by FFT state mach    
     .dbg_mem_init_start_o             (dbg_mem_init_start_o), //: out std_logic;
+    
+    // AXI interface backend signals
+    .axi_intf_sram_addr_int_debug_i   			    (axi_intf_sram_addr_int_debug_i),//: in std_logic_vector( 15 downto 0); 
+    .axi_intf_sram_t1_mem_en_int_debug_i        (axi_intf_sram_t1_mem_en_int_debug_i),//: in std_logic;                       -- t1 mem
+    .axi_intf_sram_t1_mem_wr_en_vec_int_debug_i (axi_intf_sram_t1_mem_wr_en_vec_int_debug_i),//: in std_logic_vector( 0 downto 0); 	
+    .axi_intf_stop_dec_debug_i     							(axi_intf_stop_dec_debug_i),//: in std_logic_vector(3 downto 0);    -- When to stop processing
+    .axi_intf_command_debug_i      							(axi_intf_command_debug_i),//: in std_logic;                        -- switch to debug for muxes.   
+    .axi_intf_start_1_debug_i      							(axi_intf_start_1_debug_i),//: in std_logic;
+    .axi_intf_start_2_debug_i      							(axi_intf_start_2_debug_i),//: in std_logic;   
+    .axi_intf_restart_debug_i      							(axi_intf_restart_debug_i),//: in std_logic;
+    .axi_intf_stop_debug_o         							(axi_intf_stop_debug_o),//: out std_logic := '0';
                                       
     // app interface to ddr controller
     .app_rdy_i           	            (app_rdy), //: in std_logic;
