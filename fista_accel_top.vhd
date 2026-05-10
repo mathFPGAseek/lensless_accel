@@ -45,7 +45,7 @@ entity fista_accel_top is
                                                  -- done writing to mem buffer by FFT state mach    
     dbg_mem_init_start_o               : out std_logic;
     
-    -- AXI interface backend signals
+    -- AXI interface backend signals.
     axi_intf_sram_addr_int_debug_i   			     : in std_logic_vector( 15 downto 0); 
     axi_intf_sram_t1_mem_en_int_debug_i        : in std_logic;                       -- t1 mem
     axi_intf_sram_t1_mem_wr_en_vec_int_debug_i : in std_logic_vector( 0 downto 0);
@@ -57,6 +57,9 @@ entity fista_accel_top is
     axi_intf_start_2_debug_i      : in std_logic;
     
     axi_intf_restart_debug_i      : in std_logic;
+    
+    axi_intf_data_in_i            : in std_logic_vector(79 downto 0);
+    axi_intf_data_out_o           : out std_logic_vector(79 downto 0);
     
     axi_intf_stop_debug_o         : out std_logic := '0';
     
@@ -137,6 +140,7 @@ architecture struct of fista_accel_top is
   signal dbg_mem_shared_in_enb_int             : std_logic;
   signal dbg_mem_shared_in_addb_int            : std_logic_vector(7 downto 0);
   signal data_to_mem_intf_fr_mem_in_buffer     : std_logic_vector(79 downto 0);
+  signal data_to_mem_intf_fr_mem_in_buffer_after_debug_mux : std_logic_vector(79 downto 0);
   	                                          
   signal turnaround_int                        : std_logic;
                                               
@@ -173,6 +177,24 @@ architecture struct of fista_accel_top is
   signal to_buffer_trans_mem_port_data_int     : std_logic_vector(79 downto 0);
   	
   signal done_signal_from_h_h_mult_int         : std_logic;
+  
+  signal stop_fft1d_dbg_int									   : std_logic;                                                               
+  signal stop_fft2d_dbg_int									   : std_logic;                                                                
+  signal stop_h_dbg_int					               : std_logic;                                                                      
+  signal stop_inv_fft1d_h_dbg_int              : std_logic;                                                           
+  signal stop_inv_fft2d_h_dbg_int              : std_logic;                                                           
+  signal stop_pad_crop_sub_b_dbg_int           : std_logic;                                                        
+  signal stop_fft1d_pad_dbg_int                : std_logic;                                                             
+  signal stop_fft2d_pad_dbg_int                : std_logic;                                                             
+  signal stop_h_adj_dbg_int                    : std_logic;                                                                 
+  signal stop_inv_fft1d_h_adj_dbg_int          : std_logic;                                                       
+  signal stop_inv_fft2d_h_adj_dbg_int          : std_logic;                                                       
+  signal stop_grad_update_dbg_int              : std_logic;                                                           
+  signal mem_1_addr_mux_control_int            : std_logic_vector( 1 downto 0);                                                    
+  signal mem_1_ctrl_mux_control_int            : std_logic_vector( 1 downto 0);                                                   
+  signal mem_2_addr_mux_control_int            : std_logic_vector( 1 downto 0);                                                  
+  signal mem_2_ctrl_mux_control_int            : std_logic_vector( 1 downto 0);
+
   	
   -- debug signals : All signals go to mem,gen_proc, and master
                   -- DEBUG_STATE 
@@ -237,10 +259,15 @@ architecture struct of fista_accel_top is
   signal dbg_qualify_state_verify_rd       : std_logic_vector(2 downto 0);
 begin
   
-  
-    -----------------------------------------.
+   
+   
+   
+   
+   
+    
+    -----------------------------------------
     -- Memory Controller 
-    -----------------------------------------	
+    -----------------------------------------	.
     
     u0 : entity work.mem_controller
     GENERIC MAP (
@@ -252,10 +279,14 @@ begin
         rst_i               	                      => rst_i, --: in std_logic;
                                                     
         master_mode_i                               => master_mode_int, --: in std_logic_vector(4 downto 0);
-                                                 
-        rdy_fr_init_and_inbound_i                   => dbg_rdy_fr_init_and_inbound_i, --: in std_logic; -- Equiv. to Almost full flag
-        wait_fr_init_and_inbound_i                  => dbg_wait_fr_init_and_inbound_i, --: in std_logic; -- Equiv. to Almost empty flag
-                                                    
+        
+        -- start signals                                         
+        --rdy_fr_init_and_inbound_i                   => dbg_rdy_fr_init_and_inbound_i, --: in std_logic; -- Equiv. to Almost full flag
+        --wait_fr_init_and_inbound_i                  => dbg_wait_fr_init_and_inbound_i, --: in std_logic; -- Equiv. to Almost empty flag
+        
+        rdy_fr_init_and_inbound_i                   => axi_intf_start_1_debug_i, --: in std_logic; -- Equiv. to Almost full flag  
+        wait_fr_init_and_inbound_i                  => axi_intf_start_2_debug_i, --: in std_logic; -- Equiv. to Almost empty flag 
+                                                   
         --fft signals                              
         fft_flow_tlast_i                            => dbg_fft_flow_tlast_i,--: in std_logic; -- This is a multiple clock pulse when 
                                                                   -- done writing to mem buffer by FFT state mach
@@ -309,6 +340,12 @@ begin
         fdbk_fifo_rd_en_o                           => dbg_fdbk_fifo_rd_en_o, --: out std_logic;
         fdbk_fifo_full_i                            => dbg_fdbk_fifo_full_i, --: in std_logic;
         fdbk_fifo_empty_i                           => dbg_fdbk_fifo_empty_i, --: in std_logic;
+        
+        axi_intf_restart_debug_i                    => axi_intf_restart_debug_i,
+        axi_intf_stop_debug_o                       => axi_intf_stop_debug_o,
+        
+        stop_fft1d_dbg_i                            => stop_fft1d_dbg_int,
+        stop_fft2d_dbg_i                            => stop_fft2d_dbg_int,
                                                 
         -- output control                      
         fista_accel_valid_rd_o                      => fista_accel_valid_rd_o,--: out std_logic
@@ -464,12 +501,51 @@ begin
     )       
     PORT MAP(                                
     	                                   
-    	  clk_i                  => clk_i,--: in std_logic; --clk_i, --: in std_logic;
-        rst_i               	 => rst_i,--: in std_logic; --rst_i, --: in std_logic;
-                                
-        turnaround_i           => turnaround_int,--: in std_logic_vector(4 downto 0);                                                                                        
+    	  clk_i                            => clk_i,--: in std_logic; --clk_i, --: in std_logic;
+        rst_i               	           => rst_i,--: in std_logic; --rst_i, --: in std_logic;
+                                           
+        command_dbg_i          			     => axi_intf_command_debug_i,--: in std_logic;
+                                        
+        stop_dec_dbg_i                   => axi_intf_stop_dec_debug_i, --: in std_logic_vector( 3 downto 0);
+                                        
+        turnaround_i           			     => turnaround_int,--: in std_logic;
+                                         
+        stop_fft1d_dbg_o      	  	     => stop_fft1d_dbg_int,--: out std_logic;
+                                        
+        stop_fft2d_dbg_o       			     => stop_fft2d_dbg_int,--: out std_logic;
+                                         
+        stop_h_dbg_o           			     => stop_h_dbg_int,--: out std_logic;
+                                         
+        stop_inv_fft1d_h_dbg_o 			     => stop_inv_fft1d_h_dbg_int,--: out std_logic;
+                                         
+        stop_inv_fft2d_h_dbg_o 			     => stop_inv_fft2d_h_dbg_int,--: out std_logic;
+                                        
+        stop_pad_crop_sub_b_dbg_o 	     => stop_pad_crop_sub_b_dbg_int,--: out std_logic;
+                                         
+        stop_fft1d_pad_dbg_o      	     => stop_fft1d_pad_dbg_int,--: out std_logic;
+                                        
+        stop_fft2d_pad_dbg_o      	     => stop_fft2d_pad_dbg_int,--: out std_logic;
+                                        
+        stop_h_adj_dbg_o          	     => stop_h_adj_dbg_int,--: out std_logic;
+                                        
+        stop_inv_fft1d_h_adj_dbg_o	     => stop_inv_fft1d_h_adj_dbg_int,--: out std_logic;
+                                        
+        stop_inv_fft2d_h_adj_dbg_o       => stop_inv_fft2d_h_adj_dbg_int,--: out std_logic;
+                                        
+        stop_grad_update_dbg_o           => stop_grad_update_dbg_int,--: out std_logic;
+                                         
+        mem_1_addr_mux_control_o         => mem_1_addr_mux_control_int,--: out std_logic_vector( 1 downto 0);
+                                        
+        mem_1_ctrl_mux_control_o         => mem_1_ctrl_mux_control_int,--: out std_logic_vector( 1 downto 0);
+                                        
+        mem_2_addr_mux_control_o         => mem_2_addr_mux_control_int, --: out std_logic_vector( 1 downto 0);
+                                        
+        mem_2_ctrl_mux_control_o         => mem_2_ctrl_mux_control_int,--: out std_logic_vector( 1 downto 0);
+       
+        
+                                                                                                
                                
-        master_mode_o          => master_mode_int--: out std_logic_vector( 4 downto 0)
+        master_mode_o                    => master_mode_int--: out std_logic_vector( 4 downto 0)
                                        
     );
     
@@ -480,24 +556,60 @@ begin
     --?? Need to add a mux for data bus 
     
     -----------------------------------------
+  -- Mux Data In
+  -----------------------------------------	
+  
+  mux_data_in_from_axi_intf : process(    axi_intf_command_debug_i,
+    	                                    axi_intf_data_in_i,
+    	                                    data_to_mem_intf_fr_mem_in_buffer)
+    
+    begin 
+    	
+    	case axi_intf_command_debug_i is
+    	
+    		when '0' => -- Normal Data FLow
+    			data_to_mem_intf_fr_mem_in_buffer_after_debug_mux 		<= data_to_mem_intf_fr_mem_in_buffer;
+    			
+    		when '1' => -- Debug Data In
+    		  data_to_mem_intf_fr_mem_in_buffer_after_debug_mux			 <= axi_intf_data_in_i;		
+    		
+    		-- DEBUGGER THEORY of OPERATION: 
+    		--when "11110" => -- debug mode THere is not a debug MASTER MODE , correct???
+    		-- Master Mode just tells us where we are at in process; Then the debugger
+    		-- will halt processing as we interrogate memory and then restart, that is the idea
+    		-- behind debugging
+           
+    		
+    		when others =>
+    			data_to_mem_intf_fr_mem_in_buffer_after_debug_mux			 <= (others => '0');
+    			
+      end case;
+    end process mux_data_in_from_axi_intf;
+   
+    
+    -----------------------------------------
     -- Muxes into Tranpose Memory #1
     -----------------------------------------
-    mux_to_addr_trans_mem_1 : process(master_mode_int,
+    mux_to_addr_trans_mem_1 : process(--master_mode_int,
+    	                                mem_1_addr_mux_control_int,
     	                                sram_addr_int,
     	                                axi_intf_sram_addr_int_debug_i)
     
     begin 
     	
-    	case master_mode_int is
+    	case mem_1_addr_mux_control_int is
     	
-    		when "00000" => -- 1d fft
+    		when "00" => -- From Mem Controller
     			sram_t1_mem_addr_int_mux_select <= sram_addr_int;
     		
-    		when "00001" => -- 1d fft
-    			sram_t1_mem_addr_int_mux_select <= sram_addr_int;
+    		when "01" => -- From Perp Controller ; Not designed yet ??
+    			sram_t1_mem_addr_int_mux_select <= (others => '0');
     		
-    		when "11110" => -- debug mode
+    		when "10" => -- debug mode
     			sram_t1_mem_addr_int_mux_select <= axi_intf_sram_addr_int_debug_i;
+    			
+    		when "11" => -- null mode
+    			sram_t1_mem_addr_int_mux_select <= (others => '0');
     		
     		
     		when others =>
@@ -508,7 +620,8 @@ begin
     
     
     
-    mux_to_control_trans_mem_1 : process(master_mode_int,
+    mux_to_control_trans_mem_1 : process(--master_mode_int,
+    	                                   mem_1_ctrl_mux_control_int,
     	                                   sram_en_int,
     	                                   sram_wr_en_vec_int,
     	                                   axi_intf_sram_t1_mem_en_int_debug_i,
@@ -516,20 +629,23 @@ begin
     
     begin 
     	
-    	case master_mode_int is
+    	case mem_1_ctrl_mux_control_int is
     	
-    		when "00000" => -- 1d fft
+    		when "00" => -- From Mem Controller
     			sram_t1_mem_en_int_mux_select 			 <= sram_en_int;
     			sram_t1_mem_wr_en_vec_int_mux_select <= sram_wr_en_vec_int;
     			
-    		when "00001" => -- 1d fft
+    		when "01" => -- From Perp Controller
     			sram_t1_mem_en_int_mux_select 			 <= sram_en_int;
-    			sram_t1_mem_wr_en_vec_int_mux_select <= sram_wr_en_vec_int; 
+    			sram_t1_mem_wr_en_vec_int_mux_select <= sram_wr_en_vec_int;  		
     		
-    		
-    		when "11110" => -- debug mode
+    		when "10" => -- debug mode
     			sram_t1_mem_en_int_mux_select        <= axi_intf_sram_t1_mem_en_int_debug_i;
     		  sram_t1_mem_wr_en_vec_int_mux_select <= axi_intf_sram_t1_mem_wr_en_vec_int_debug_i;
+    		  
+    		when "11" => -- null mode
+    			sram_t1_mem_en_int_mux_select        <= '0';
+    		  sram_t1_mem_wr_en_vec_int_mux_select <= (others => '0');
     		
     		when others =>
     			sram_t1_mem_en_int_mux_select <= '0';
@@ -562,11 +678,41 @@ begin
   ena   => sram_t1_mem_en_int_mux_select,                       --ena : in STD_LOGIC;
   wea   => sram_t1_mem_wr_en_vec_int_mux_select,                --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
   addra => sram_t1_mem_addr_int_mux_select,                     --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
-  dina  => data_to_mem_intf_fr_mem_in_buffer,            --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
+  dina  => data_to_mem_intf_fr_mem_in_buffer_after_debug_mux,            --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
   douta => data_fr_mem_intf_to_gen_proc,                 --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
   vouta => valid_fr_mem_intf_to_gen_proc,
   dbg_qualify_state_i => dbg_qualify_state_verify_rd(0)
   );
+  
+  -----------------------------------------
+  -- Mux Data Out
+  -----------------------------------------	
+  
+  mux_data_out_to_axi_intf : process(    master_mode_int,
+    	                                   data_fr_mem_intf_to_gen_proc)
+    
+    begin 
+    	
+    	case master_mode_int is
+    	
+    		when "00000" => -- 1d fft
+    			axi_intf_data_out_o 			 <= data_fr_mem_intf_to_gen_proc;
+    			
+    		when "00001" => -- 1d fft
+    		  axi_intf_data_out_o			 <= (others => '0');		
+    		
+    		-- DEBUGGER THEORY of OPERATION: 
+    		--when "11110" => -- debug mode THere is not a debug MASTER MODE , correct???
+    		-- Master Mode just tells us where we are at in process; Then the debugger
+    		-- will halt processing as we interrogate memory and then restart, that is the idea
+    		-- behind debugging
+           
+    		
+    		when others =>
+    			axi_intf_data_out_o			 <= (others => '0');
+    			
+      end case;
+    end process mux_data_out_to_axi_intf;
                                
 
     

@@ -151,6 +151,12 @@ entity mem_controller is
     fdbk_fifo_full_i              : in std_logic;
     fdbk_fifo_empty_i             : in std_logic;
     
+    -- debugger signals
+    axi_intf_restart_debug_i      : in std_logic;
+    axi_intf_stop_debug_o         : out std_logic;  
+    stop_fft1d_dbg_i              : in std_logic;
+    stop_fft2d_dbg_i              : in std_logic;
+    
     ---  rd,wr control to Fista xk FIFO ??? Move to fista st mach
     --fista_fifo_xk_wr_en_o         : out std_logic;
     --fista_fifo_xk_en_o            : out std_logic;
@@ -274,6 +280,12 @@ begin
         fdbk_fifo_rd_en_o                           => fdbk_fifo_rd_en_o, --: out std_logic;
         fdbk_fifo_full_i                            => fdbk_fifo_full_i, --: in std_logic;
         fdbk_fifo_empty_i                           => fdbk_fifo_empty_i, --: in std_logic;
+        
+        -- debugger signals
+        axi_intf_restart_debug_i      => axi_intf_restart_debug_i,--: in std_logic;
+        axi_intf_stop_debug_o         => axi_intf_stop_debug_o,--: out std_logic;
+        stop_fft1d_dbg_i              => stop_fft1d_dbg_i,--: in std_logic;
+        stop_fft2d_dbg_i              => stop_fft2d_dbg_i,--: in std_logic;
                                                 
         -- output control                      
         fista_accel_valid_rd_o                      => fista_accel_valid_rd_o,--: out std_logic

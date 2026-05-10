@@ -158,6 +158,12 @@ generic (
     fdbk_fifo_full_i              : in std_logic;
     fdbk_fifo_empty_i             : in std_logic;
     
+    -- debugger signals
+    axi_intf_restart_debug_i      : in std_logic;
+    axi_intf_stop_debug_o         : out std_logic;
+    stop_fft1d_dbg_i              : in std_logic;
+    stop_fft2d_dbg_i              : in std_logic;
+    
     ---  rd,wr control to Fista xk FIFO  Move to fista st mach
     --fista_fifo_xk_wr_en_o         : out std_logic;
     --fista_fifo_xk_en_o            : out std_logic;
@@ -186,7 +192,7 @@ generic (
     
   END mem_st_machine_controller;
    architecture struct of mem_st_machine_controller is
-  -- signals
+  -- signals.
 
   
   --decoded signals
@@ -323,6 +329,11 @@ generic (
   signal rd_addr_incr_from_mem_cont_rrr   : std_logic_vector(15 downto 0);
   signal rd_addr_incr_from_mem_cont_rrrr  : std_logic_vector(15 downto 0); 
   signal rd_addr_incr_from_mem_cont_rrrrr : std_logic_vector(15 downto 0); 
+  	
+  	
+  -- debugger signals
+  signal axi_intf_stop_debug_d      : std_logic;
+  signal axi_intf_stop_debug_r      : std_logic;
 
 
   	
@@ -442,10 +453,13 @@ generic (
     state_turnaround,                     -- 11000000
     
     -- retry
-    --state_retry                           -- 11000001
+    --state_retry                         -- 11000001
     
-    state_H,                             -- 01000000 
-    state_H_col                          -- 01000001
+    state_H,                              -- 01000000 
+    state_H_col,                          -- 01000001
+    
+    state_chk_1dfft_dbg,                  --11111000
+    state_chk_2dfft_dbg                   --11111001
   );
   
   signal ns_controller : st_controller_t;
@@ -485,6 +499,8 @@ generic (
        	  wait_fr_init_and_inbound_i,
        	  app_rdy_i,
        	  app_wdf_rdy_i,
+       	  stop_fft1d_dbg_i,
+       	  stop_fft2d_dbg_i,
        	  state_counter_1_r,
        	  state_counter_3_r,
        	  state_counter_4_r, -- used as write addresss for fram
@@ -552,12 +568,12 @@ generic (
             	     ns_controller <= state_wr_col;
             		  
                 elsif(  (state_counter_4_r >= IMAGE256X256 ) and -- complete 1d fft qnd start of col rd for 2d fft
-              	  (master_mode_i = "00000")           		   	 
+              	  (master_mode_i = "00000") and (stop_fft1d_dbg_i  = '0')           		   	 
               	 ) then 
                 	 ns_controller <= state_turnaround;
                 	 
                 elsif(  (state_counter_14_r >= IMAGE256X256 )  and  -- complete 2d fft and start rd of col for H proc
-              	  (master_mode_i  = "00001")          		   	 
+              	  (master_mode_i  = "00001") and (stop_fft2d_dbg_i  = '0')        		   	 
                  ) then 
               	   ns_controller <= state_H; 
               	   
@@ -570,6 +586,16 @@ generic (
               	      (master_mode_i = "00011")           		   	 
                  ) then 
               	   ns_controller <= state_DEBUG_STOP;
+              	   
+              	elsif(  (state_counter_14_r >= IMAGE256X256 )  and  -- 
+              	  (master_mode_i  = "00000")   and (stop_fft1d_dbg_i  = '1')           		   	 
+                 ) then 
+              	   ns_controller <= state_chk_1dfft_dbg;
+              	   
+              	elsif(  (state_counter_14_r >= IMAGE256X256 )  and  -- 
+              	  (master_mode_i  = "00001")   and (stop_fft2d_dbg_i  = '1')           		   	 
+                 ) then 
+              	   ns_controller <= state_chk_1dfft_dbg;
 
             	  else                                     
             		   ns_controller        <= state_wait_for_fft;
@@ -808,7 +834,32 @@ generic (
             	 decoder_st_d <= "11110010";
             	 
             	 ns_controller <=  state_rd_incr_addr;
+            	 
+            	 
+            when state_chk_1dfft_dbg =>
+            	
+            	 decoder_st_d <= "11111000";
           	 	
+          	 	if (axi_intf_restart_debug_i = '1') then
+          	 		ns_controller <= state_turnaround;
+          	 		
+          	 	else
+          	 		ns_controller <= state_chk_1dfft_dbg;
+          	 		
+          	 	end if;
+          	 		
+          	when state_chk_2dfft_dbg =>
+          		
+          		decoder_st_d  <= "11111001";
+          		
+          		if (axi_intf_restart_debug_i = '1') then
+          	 		ns_controller <= state_H;
+          	 		
+          	 	else
+          	 		ns_controller <= state_chk_2dfft_dbg;
+          	 		
+          	 	end if;
+          		
        	
             when others =>
             
@@ -862,6 +913,8 @@ generic (
         fdbk_fifo_rd_en_d           <=  '0'; -- No rd --: out std_logic;
         
         turnaround_d                <=  '0';
+        
+        axi_intf_stop_debug_d       <=  '0';
       
      
       when "00000010" => -- Write in B
@@ -904,6 +957,8 @@ generic (
         fdbk_fifo_rd_en_d           <=  '0'; -- No wr --: out std_logic;
         
         turnaround_d                <=  '0';
+        
+        axi_intf_stop_debug_d       <=  '0';
                   
       when "00010001" => -- Wait for FFT Completion, after write in B
       	               -- Wait for FFT Completion, after Read out 1-D FWD AV Col ( Step 1)
@@ -942,6 +997,8 @@ generic (
         fdbk_fifo_rd_en_d           <=  '0'; -- No rd --: out std_logic;
         
         turnaround_d                <=  '0';
+        
+        axi_intf_stop_debug_d       <=  '0';
         
       when "00010010" =>  --Write in 1-D FWD AV Row ( Step 0)  -- Start of A Calculation --
       	                --  Write in 2-D FWD AV Col ( Step 2)
@@ -982,7 +1039,11 @@ generic (
         fdbk_fifo_wr_en_d           <=  '0'; -- No wr --: out std_logic;
         fdbk_fifo_rd_en_d           <=  '0'; -- No rd --: out std_logic;
         
-        turnaround_d                <=  '0';    
+        turnaround_d                <=  '0';
+        
+        
+        axi_intf_stop_debug_d       <=  '0';
+            
       
       -- Stall States
       when "00010011" =>  -- Stall  Write in 1-D FWD AV Row ( Step 0)  -- Start of A Calculation --
@@ -1023,6 +1084,8 @@ generic (
         fdbk_fifo_rd_en_d           <=  '0'; -- No rd --: out std_logic;
         
         turnaround_d                <=  '0';
+        
+        axi_intf_stop_debug_d       <=  '0';
         
 
 
@@ -1066,6 +1129,8 @@ generic (
         
         turnaround_d                <=  '0';
         
+        axi_intf_stop_debug_d       <=  '0';
+        
         
       when "00010101" =>  -- extra write state 2
       	                   
@@ -1106,6 +1171,10 @@ generic (
         fdbk_fifo_rd_en_d           <=  '0'; -- No rd --: out std_logic;
         
         turnaround_d                <=  '0';
+        
+        
+        axi_intf_stop_debug_d       <=  '0';
+        
           
       
       when "11000000" => -- state turnaround
@@ -1144,6 +1213,10 @@ generic (
         fdbk_fifo_rd_en_d           <=  '0'; -- No rd --: out std_logic; 
         
         turnaround_d                <=  '1'; 
+        
+        
+        axi_intf_stop_debug_d       <=  '0';
+        
       
       when "01000000" => -- state H (equiv to state turnaround; useful as demaraction of H proc)
   			  			
@@ -1181,6 +1254,8 @@ generic (
         fdbk_fifo_rd_en_d           <=  '0'; -- No rd --: out std_logic; 
         
         turnaround_d                <=  '1'; 
+        
+        axi_intf_stop_debug_d       <=  '0';
        
         
       
@@ -1224,6 +1299,8 @@ generic (
       --when "000110" => --  Wait for FFT completion --SAME as "000011"
       --when "000111" => --  Write in 2-D FWD AV Col ( Step 2) -- SAME as "000100"
       
+        axi_intf_stop_debug_d       <=  '0';
+      
      
       when "00100011" => -- Stall   Read out 1-D FWD AV Col ( Step 1)
       	  			
@@ -1266,6 +1343,8 @@ generic (
       --when "000111" => --  Write in 2-D FWD AV Col ( Step 2) -- SAME as "000100" 
 
      ---****
+     
+        axi_intf_stop_debug_d       <=  '0';
            
       when "00100100" => --  rd extra line 1
       	  			
@@ -1307,6 +1386,8 @@ generic (
       --when "000110" => --  Wait for FFT completion --SAME as "000011"
       --when "000111" => --  Write in 2-D FWD AV Col ( Step 2) -- SAME as "000100"
       
+        axi_intf_stop_debug_d       <=  '0';
+      
             
       when "00100101" => --  rd ex rd line 2
       	  			
@@ -1347,6 +1428,8 @@ generic (
       	
       --when "000110" => --  Wait for FFT completion --SAME as "000011"
       --when "000111" => --  Write in 2-D FWD AV Col ( Step 2) -- SAME as "000100"
+      
+        axi_intf_stop_debug_d       <=  '0';
              
       when "00100110" => --  incr read addr
       	  			
@@ -1388,6 +1471,7 @@ generic (
       --when "000110" => --  Wait for FFT completion --SAME as "000011"
       --when "000111" => --  Write in 2-D FWD AV Col ( Step 2) -- SAME as "000100"
       
+        axi_intf_stop_debug_d       <=  '0';
           
       when "00100111" =>  -- Wr Col 
       	                
@@ -1428,7 +1512,9 @@ generic (
         fdbk_fifo_wr_en_d           <=  '0'; -- No wr --: out std_logic;
         fdbk_fifo_rd_en_d           <=  '0'; -- No rd --: out std_logic;
         
-        turnaround_d                <=  '0';    
+        turnaround_d                <=  '0'; 
+        
+        axi_intf_stop_debug_d       <=  '0';   
      
          
       when "01000001" =>  -- state_H_col ( equivalent to Wr Col ) 
@@ -1472,7 +1558,7 @@ generic (
         
         turnaround_d                <=  '0';    
          
-            
+        axi_intf_stop_debug_d       <=  '0';  
           
       when "00101000" =>  -- wait wr to rd
       	                
@@ -1515,7 +1601,7 @@ generic (
         
         turnaround_d                <=  '0';    
        
-      
+        axi_intf_stop_debug_d       <=  '0';
             
       when "11110001" => --  Debug after stop
       	  			
@@ -1557,8 +1643,97 @@ generic (
       --when "000110" => --  Wait for FFT completion --SAME as "000011"
       --when "000111" => --  Write in 2-D FWD AV Col ( Step 2) -- SAME as "000100"
       
+        axi_intf_stop_debug_d       <=  '0';
+      
+                       -----------------------------------------
+                       -- Debugger states to allow software control
+                       -----------------------------------------.
+      when "11111000" => --  Debugger state for 1d fft chk
+      	  			
+  	  	-- app interface to ddr controller
+        app_cmd_d         <=          "000"; --rd B Mem         --: out std_logic_vector(2 downto 0);
+        app_en_d          <=          '0';   --rd B Mem         --: out std_logic;
+        app_wdf_end_d     <=          '0';   --"Don't Care'     --: out std_logic;
+        app_wdf_en_d      <=          '0';   --"Don't Care'     --: out std_logic;
+        app_wdf_wren_d    <=          '0';   --"Don't Care'     --: out std_logic;
+    	
+        -- mux/demux control to ddr memory controller.
+        ddr_intf_mux_wr_sel_d    <=    "00";  --"Don't Care'           --: out std_logic_vector(1 downto 0);
+        ddr_intf_demux_rd_sel_d  <=    "000"; --rd 1-D Fwd Av col      --: out std_logic_vector(2 downto 0);
+     
+        -- rd control to shared input memory
+        mem_shared_in_enb_d      <=   '0';    -- No rd                 --: out std_logic;
+    
+        -- mux/demux control to front and Backend modules  
+        front_end_demux_fr_fista_d  <=  '0'; --"Don't Care' --: out std_logic;
+        front_end_mux_to_fft_d      <=  "00"; -- Select Fdbk --: out std_logic_vector(1 downto 0);
+        back_end_demux_fr_fh_mem_d  <=  '0'; --"Don't Care' --: out std_logic;
+        back_end_demux_fr_fv_mem_d  <=  '0'; --"Don't Care' --: out std_logic;
+        back_end_mux_to_front_end_d <=  '0'; --"Don't Care' --: out std_logic;
+    
+        -- rd,wr control to F*(H) F(H) FIFO 
+        f_h_fifo_wr_en_d            <=  '0'; -- No wr --: out std_logic;
+        f_h_fifo_rd_en_d            <=  '0'; -- No rd --: out std_logic;
+    
+        -- rd,wr control to F(V) FIFO
+        f_v_fifo_wr_en_d            <=  '0'; -- No wr --: out std_logic;
+        f_v_fifo_rd_en_d            <=  '0'; -- No rd --: out std_logic;
+    
+        --  rd,wr control to Fdbk FIFO
+        fdbk_fifo_wr_en_d           <=  '0'; -- No wr --: out std_logic;
+        fdbk_fifo_rd_en_d           <=  '0'; -- No rd --: out std_logic;
+        
+        turnaround_d                <=  '0';
+      	
+      --when "000110" => --  Wait for FFT completion --SAME as "000011"
+      --when "000111" => --  Write in 2-D FWD AV Col ( Step 2) -- SAME as "000100"
+      
+        axi_intf_stop_debug_d       <=  '1';
+      
+      when "11111001" => --  Debugger state for 2d fft chk
+      	  			
+  	  	-- app interface to ddr controller
+        app_cmd_d         <=          "000"; --rd B Mem         --: out std_logic_vector(2 downto 0);
+        app_en_d          <=          '0';   --rd B Mem         --: out std_logic;
+        app_wdf_end_d     <=          '0';   --"Don't Care'     --: out std_logic;
+        app_wdf_en_d      <=          '0';   --"Don't Care'     --: out std_logic;
+        app_wdf_wren_d    <=          '0';   --"Don't Care'     --: out std_logic;
+    	
+        -- mux/demux control to ddr memory controller.
+        ddr_intf_mux_wr_sel_d    <=    "00";  --"Don't Care'           --: out std_logic_vector(1 downto 0);
+        ddr_intf_demux_rd_sel_d  <=    "000"; --rd 1-D Fwd Av col      --: out std_logic_vector(2 downto 0);
+     
+        -- rd control to shared input memory
+        mem_shared_in_enb_d      <=   '0';    -- No rd                 --: out std_logic;
+    
+        -- mux/demux control to front and Backend modules  
+        front_end_demux_fr_fista_d  <=  '0'; --"Don't Care' --: out std_logic;
+        front_end_mux_to_fft_d      <=  "00"; -- Select Fdbk --: out std_logic_vector(1 downto 0);
+        back_end_demux_fr_fh_mem_d  <=  '0'; --"Don't Care' --: out std_logic;
+        back_end_demux_fr_fv_mem_d  <=  '0'; --"Don't Care' --: out std_logic;
+        back_end_mux_to_front_end_d <=  '0'; --"Don't Care' --: out std_logic;
+    
+        -- rd,wr control to F*(H) F(H) FIFO 
+        f_h_fifo_wr_en_d            <=  '0'; -- No wr --: out std_logic;
+        f_h_fifo_rd_en_d            <=  '0'; -- No rd --: out std_logic;
+    
+        -- rd,wr control to F(V) FIFO
+        f_v_fifo_wr_en_d            <=  '0'; -- No wr --: out std_logic;
+        f_v_fifo_rd_en_d            <=  '0'; -- No rd --: out std_logic;
+    
+        --  rd,wr control to Fdbk FIFO
+        fdbk_fifo_wr_en_d           <=  '0'; -- No wr --: out std_logic;
+        fdbk_fifo_rd_en_d           <=  '0'; -- No rd --: out std_logic;
+        
+        turnaround_d                <=  '0';
+      	
+      --when "000110" => --  Wait for FFT completion --SAME as "000011"
+      --when "000111" => --  Write in 2-D FWD AV Col ( Step 2) -- SAME as "000100"
+      
+        axi_intf_stop_debug_d       <=  '1';
       
      
+     --------------------------------------------------------------------------------------------------------
             
       when "11110010" => -- debug after wait
   			  			
@@ -1597,7 +1772,7 @@ generic (
         
         turnaround_d                <=  '0'; 
            
-        
+        axi_intf_stop_debug_d       <=  '0';
         
       when others =>
       	  			  			
@@ -1635,6 +1810,8 @@ generic (
         fdbk_fifo_rd_en_d           <=  '0'; -- No rd --: out std_logic;
         
         turnaround_d                <=  '0';
+        
+        axi_intf_stop_debug_d       <=  '0';
       
       
       end case;
@@ -1730,6 +1907,9 @@ generic (
         
         turnaround_r                <=  '0';
         turnaround_rr               <=  '0';
+        
+        -- debugger
+        axi_intf_stop_debug_r       <= '0';
         			
         -- decoder 
         decoder_st_r                <= "00000001"; -- init state
@@ -1794,6 +1974,9 @@ generic (
         
         turnaround_r                <= turnaround_d;
         turnaround_rr               <= turnaround_r;
+        
+        -- debugger
+        axi_intf_stop_debug_r       <= axi_intf_stop_debug_d;
         			
         -- decoder
         decoder_st_r                <= decoder_st_d;
@@ -1865,6 +2048,9 @@ generic (
         
         turnaround_r                <=  '0';
         turnaround_rr               <=  '0';
+        
+        -- debugger
+        axi_intf_stop_debug_r       <= '0';
         			
         -- decoder 
         decoder_st_r                <= "00000001"; -- init state
@@ -1929,6 +2115,9 @@ generic (
         
         turnaround_r                <= turnaround_d;
         turnaround_rr               <= turnaround_r;
+        
+        -- debugger
+        axi_intf_stop_debug_r       <= axi_intf_stop_debug_d;
         			
         -- decoder
         decoder_st_r                <= decoder_st_d;
@@ -3420,6 +3609,9 @@ generic (
                                                   -- the turnaround state where
                                                   -- we attmept to make things 
                                                   -- quiescent.
+                                                  
+   axi_intf_stop_debug_o  <=  axi_intf_stop_debug_r;                                              
+                                                  
   
   --rd_addr_incr_from_mem_cont_o  <= rd_addr_incr_from_mem_cont_d;
   --rd_addr_incr_from_mem_cont_o  <= rd_addr_incr_from_mem_cont_r;

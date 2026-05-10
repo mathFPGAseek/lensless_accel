@@ -215,7 +215,7 @@ module example_tb #(
           
   input  										axi_intf_sram_t1_mem_wr_en_vec_int_debug_i,
    
-  input  										axi_intf_stop_dec_debug_i,
+  input [3:0] 							axi_intf_stop_dec_debug_i,
        							
   input  										axi_intf_command_debug_i,
         							
@@ -223,7 +223,11 @@ module example_tb #(
         							
   input  										axi_intf_start_2_debug_i,
         							
-  input  										axi_intf_restart_debug_i, 
+  input  										axi_intf_restart_debug_i,
+  
+  input  [79:0]             axi_intf_data_in_i,
+  
+  output [79:0]             axi_intf_data_out_o,
        							
   output  									axi_intf_stop_debug_o         							
                                                                                            
@@ -260,6 +264,8 @@ module example_tb #(
     .axi_intf_start_1_debug_i      							(axi_intf_start_1_debug_i),//: in std_logic;
     .axi_intf_start_2_debug_i      							(axi_intf_start_2_debug_i),//: in std_logic;   
     .axi_intf_restart_debug_i      							(axi_intf_restart_debug_i),//: in std_logic;
+    .axi_intf_data_in_i                         (axi_intf_data_in_i),//: in std_logic_vector(79 downto 0);
+    .axi_intf_data_out_o                        (axi_intf_data_out_o),//: out std_logic_vector(79 downto 0);
     .axi_intf_stop_debug_o         							(axi_intf_stop_debug_o),//: out std_logic := '0';
                                       
     // app interface to ddr controller
