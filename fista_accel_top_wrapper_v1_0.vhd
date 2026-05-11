@@ -113,7 +113,7 @@ architecture arch_imp of  fista_accel_top_wrapper_v1_0 is
     dbg_fdbk_fifo_full_i              					: in std_logic;
     dbg_fdbk_fifo_empty_i             					: in std_logic;                                             
     -- output control                           
-    fista_accel_valid_rd_o            					: out std_logic;
+    fista_accel_valid_rd_o            					: out std_logic
 
     );
    end component fista_accel_top;
@@ -178,6 +178,8 @@ architecture arch_imp of  fista_accel_top_wrapper_v1_0 is
   
   
   signal    axi_intf_data_in_lower_sig   : std_logic_vector(31 downto 0);
+  
+  signal    s00_axi_areset               : std_logic;
   
 
 begin
