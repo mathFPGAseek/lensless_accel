@@ -201,7 +201,7 @@ begin
 --   Port 2 : C + Di
 --   (AC - BD) Re + (AD + BC) Im
 
-U1: entity xil_defaultlib.floating_point_mult_REGEN_LL_0 -- A(Re)*C(Re)
+U1: entity xil_defaultlib.fp_mult -- A(Re)*C(Re)
   PORT MAP ( 
   aclk                   => clk_i,    --- aclk : in STD_LOGIC;
   aresetn                => not(rst_i),
@@ -217,7 +217,7 @@ U1: entity xil_defaultlib.floating_point_mult_REGEN_LL_0 -- A(Re)*C(Re)
   );
  
 
-U2: entity xil_defaultlib.floating_point_mult_REGEN_LL_0 -- B(Im)*D(Im)
+U2: entity xil_defaultlib.fp_mult -- B(Im)*D(Im)
   PORT MAP ( 
   aclk                   => clk_i,    --- aclk : in STD_LOGIC;
   aresetn                => not(rst_i),
@@ -234,7 +234,7 @@ U2: entity xil_defaultlib.floating_point_mult_REGEN_LL_0 -- B(Im)*D(Im)
 
 
 
-U3: entity xil_defaultlib.floating_point_mult_REGEN_LL_0 -- A(Re)*D(Im).
+U3: entity xil_defaultlib.fp_mult -- A(Re)*D(Im).
   PORT MAP ( 
   aclk                   => clk_i,    --- aclk : in STD_LOGIC;
   aresetn                => not(rst_i),
@@ -250,7 +250,7 @@ U3: entity xil_defaultlib.floating_point_mult_REGEN_LL_0 -- A(Re)*D(Im).
   );
   
   
-U4: entity xil_defaultlib.floating_point_mult_REGEN_LL_0 -- B(Im)*C(Re)
+U4: entity xil_defaultlib.fp_mult -- B(Im)*C(Re)
   PORT MAP ( 
   aclk                   => clk_i,    --- aclk : in STD_LOGIC;
   aresetn                => not(rst_i),
@@ -269,7 +269,7 @@ U4: entity xil_defaultlib.floating_point_mult_REGEN_LL_0 -- B(Im)*C(Re)
  -- (AC - BD ) Re
  -----------------------------------------.	
 
- U5: entity xil_defaultlib.floating_point_sub_LL_0
+ U5: entity xil_defaultlib.fp_sub
   PORT MAP ( 
    aclk                   => clk_i, --: in STD_LOGIC;
    s_axis_a_tvalid        => sub_re_input_valid_r,--s_axis_a_tvalid : in STD_LOGIC;
@@ -288,7 +288,7 @@ U4: entity xil_defaultlib.floating_point_mult_REGEN_LL_0 -- B(Im)*C(Re)
  -- (AD + BC ) Im
  -----------------------------------------
  
- U6: entity xil_defaultlib.floating_point_add_LL_0
+ U6: entity xil_defaultlib.fp_add
   PORT MAP ( 
    aclk                   => clk_i, --: in STD_LOGIC;
    s_axis_a_tvalid        => add_im_input_valid_r,--s_axis_a_tvalid : in STD_LOGIC;

@@ -48,7 +48,7 @@ begin
 --  doutb     =>  doutb_int                --: out STD_LOGIC_VECTOR ( 79 downto 0 ).
 --);
   
-  U1 : entity work.blk_dual_mem_gen_no_reg_LL_0
+  U1 : entity work.mem_buf
   PORT MAP( 
     clka      =>  clk_i,               --: in STD_LOGIC;.
     ena       =>  ena,                --: in STD_LOGIC;

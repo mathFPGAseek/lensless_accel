@@ -128,7 +128,7 @@ begin
   --);
                                         
   
-   U1 : entity work.blk_mem_32bit_gen_REGEN_LL_0 
+   U1 : entity work.mem_init 
    PORT MAP ( 
     clka            =>      clk_i,         --: in STD_LOGIC;
     ena             =>      en_int,        --: in STD_LOGIC;

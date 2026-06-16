@@ -196,7 +196,7 @@ signal select_rd_rom_en         : std_logic;
 
 signal enable_for_rom_int       : std_logic;  
 
-component blk_wr_addr_mem_gen_no_reg_LL_0 
+component mem_wr_addr
     port( 
     clka   : in STD_LOGIC;
     ena    : in STD_LOGIC;
@@ -319,7 +319,7 @@ begin
     select_wr_rom_en <= not(master_mode_i(0)) and mem_shared_in_enb_int;
   
     
-    U1 : entity xil_defaultlib.blk_wr_addr_mem_gen_no_reg_REGEN_LL_0 
+    U1 : entity xil_defaultlib.mem_wr_addr
     PORT MAP( 
     clka              =>   clk_i,--: in STD_LOGIC;
     ena               =>   select_wr_rom_en,--: in STD_LOGIC;
@@ -331,7 +331,7 @@ begin
     select_rd_rom_en <= master_mode_i(0) and enable_for_rom_int;
 
             
-    U2 : entity xil_defaultlib.blk_rd_addr_mem_gen_no_reg_REGEN_LL_0 
+    U2 : entity xil_defaultlib.mem_rd_addr 
     PORT MAP( 
     clka              =>   clk_i,--: in STD_LOGIC;
     ena               =>   select_rd_rom_en,--: in STD_LOGIC;
@@ -340,7 +340,7 @@ begin
     );
     
     
-    U3 : entity xil_defaultlib.add_counter_and_rom_for_rd_col_addr_LL 
+    U3 : entity xil_defaultlib.add_cnt_rd 
     PORT MAP ( 
     A 							=> rd_addr_from_rd_rom,--: in STD_LOGIC_VECTOR ( 15 downto 0 );
     B 							=> rd_addr_incr_from_mem_cont,--: in STD_LOGIC_VECTOR ( 15 downto 0 );

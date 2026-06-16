@@ -85,7 +85,7 @@ begin
  g_use_u1_no_debug : if g_USE_DEBUG_MODE_i = 0 generate -- default condition
  		
   	--u1 : entity work.blk_mem_gen_h_psf_mem_LL_0 
-  	u1 : entity xil_defaultlib.blk_mem_gen_h_psf_mem_LL_0 
+  	u1 : entity xil_defaultlib.mem_h 
 
   	PORT MAP ( 
   	clka  => clk_i,                                      --clka : in STD_LOGIC;
@@ -103,17 +103,18 @@ begin
  	
 g_use_u2_debug_h_psf_mem : if g_USE_DEBUG_MODE_i = 1 generate -- debug H
  
-u2 : entity work.blk_mem_debug_h_psf_mem_REGEN_LL_0 -- 256x256 entries of 2 + 3i( single float)
-  PORT MAP ( 
-  clka => clk_i, --clka : in STD_LOGIC;
-  ena => ena_to_mem_d, --ena : in STD_LOGIC;
-  wea => wea, --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
-  addra => addra, --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
-  dina  => dina, --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
-  douta => data_out_no_debug_fwd_2d_A_r --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
-  );
+--USE this memory for testing multiplies in engines
+--u2 : entity work.blk_mem_debug_h_psf_mem_REGEN_LL_0 -- 256x256 entries of 2 + 3i( single float)
+--  PORT MAP ( 
+--  clka => clk_i, --clka : in STD_LOGIC;
+--  ena => ena_to_mem_d, --ena : in STD_LOGIC;
+--  wea => wea, --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+--  addra => addra, --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
+--  dina  => dina, --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
+--  douta => data_out_no_debug_fwd_2d_A_r --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
+--  );
 
-  data_out_r <= data_out_no_debug_fwd_2d_A_r;
+--  data_out_r <= data_out_no_debug_fwd_2d_A_r;
 
 
 end generate g_use_u2_debug_h_psf_mem;

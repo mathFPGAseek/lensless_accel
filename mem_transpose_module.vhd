@@ -48,38 +48,38 @@ signal data_out_no_debug_default_r  : std_logic_vector( 79 downto 0);
 signal data_out_no_debug_fwd_2d_A_r        : std_logic_vector( 79 downto 0);
 signal enable_read_rr               : std_logic;
 
-COMPONENT blk_mem_gen_debug_h_transpose_mem_REGEN2_LL_0
-	Port ( 
-    clka : in STD_LOGIC;
-    ena : in STD_LOGIC;
-    wea : in STD_LOGIC_VECTOR ( 0 to 0 );
-    addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
-    dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
-    douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
-  );
- END COMPONENT;
+--COMPONENT blk_mem_gen_debug_h_transpose_mem_REGEN2_LL_0
+--	Port ( 
+--    clka : in STD_LOGIC;
+--    ena : in STD_LOGIC;
+--    wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+--    addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
+--    dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
+--    douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
+--  );
+-- END COMPONENT;
 
-COMPONENT blk_mem_gen_debug_h_transpose_mem_REGEN_LL_0
-	Port ( 
-    clka : in STD_LOGIC;
-    ena : in STD_LOGIC;
-    wea : in STD_LOGIC_VECTOR ( 0 to 0 );
-    addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
-    dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
-    douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
-  );
- END COMPONENT;
+--COMPONENT blk_mem_gen_debug_h_transpose_mem_REGEN_LL_0
+--	Port ( 
+--    clka : in STD_LOGIC;
+--    ena : in STD_LOGIC;
+--    wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+--    addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
+--    dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
+--    douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
+--  );
+-- END COMPONENT;
 
-COMPONENT blk_mem_debug_h_transpose_seq_mem_LL_0 is
-  Port ( 
-    clka : in STD_LOGIC;
-    ena : in STD_LOGIC;
-    wea : in STD_LOGIC_VECTOR ( 0 to 0 );
-    addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
-    dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
-    douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
-  );
- END COMPONENT;
+--COMPONENT blk_mem_debug_h_transpose_seq_mem_LL_0 is
+--  Port ( 
+--    clka : in STD_LOGIC;
+--    ena : in STD_LOGIC;
+--    wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+--    addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
+--    dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
+--    douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
+--  );
+-- END COMPONENT;
 -------------------------------------------------	
 -------------------------------------------------
 -------------------------------------------------
@@ -318,10 +318,10 @@ begin
 	
   -----------------------------------------
   -- Transpose mem_intf
-  -----------------------------------------.	
+  -----------------------------------------	
    g_use_u1_no_debug : if g_USE_DEBUG_MODE_i = 0 generate -- default condition
  		
-  	u1 : entity work.blk_mem_image_gen_LL_0 
+  	u1 : entity work.mem_img 
   	PORT MAP ( 
   	clka  => clk_i,                                      --clka : in STD_LOGIC;
   	ena   => ena_to_mem_d,                               --ena : in STD_LOGIC;
@@ -339,16 +339,17 @@ begin
  	
  	
 g_use_u2_debug_h_transpose_mem : if g_USE_DEBUG_MODE_i = 1 generate -- debug H
-	
-u2 : blk_mem_gen_debug_h_transpose_mem_REGEN2_LL_0 -- 256x256 entries of 2 + 3i( single float)
-  PORT MAP ( 
-  clka => clk_i, --clka : in STD_LOGIC;
-  ena => ena_to_mem_d, --ena : in STD_LOGIC;
-  wea => write_control_from_generic, --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
-  addra => addra, --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
-  dina  => dina, --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
-  douta => data_out_no_debug_fwd_2d_A_r --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
-  );
+
+-- USE this memory for testing multiplies in engines	
+--u2 : blk_mem_gen_debug_h_transpose_mem_REGEN2_LL_0 -- 256x256 entries of 2 + 3i( single float)
+--  PORT MAP ( 
+--  clka => clk_i, --clka : in STD_LOGIC;
+--  ena => ena_to_mem_d, --ena : in STD_LOGIC;
+--  wea => write_control_from_generic, --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+--  addra => addra, --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
+--  dina  => dina, --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
+--  douta => data_out_no_debug_fwd_2d_A_r --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
+--  );
  
 --u2 : blk_mem_gen_debug_h_transpose_mem_REGEN_LL_0 -- 256x256 entries of 2 + 3i( single float)
 --  PORT MAP ( 
@@ -360,7 +361,12 @@ u2 : blk_mem_gen_debug_h_transpose_mem_REGEN2_LL_0 -- 256x256 entries of 2 + 3i(
 --  douta => data_out_no_debug_fwd_2d_A_r --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
 --  );
 
-  data_out_r <= data_out_no_debug_fwd_2d_A_r;
+
+
+--USE this memory for testing multiplies in engines
+--  data_out_r <= data_out_no_debug_fwd_2d_A_r;
+
+
 
 --u2 : entity blk_mem_debug_h_transpose_seq_mem_LL_0 
 --u2 : blk_mem_debug_h_transpose_seq_mem_LL_0 
