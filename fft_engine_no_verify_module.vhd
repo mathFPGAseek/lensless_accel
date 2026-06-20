@@ -289,36 +289,36 @@ begin
  -- split data for float input
  fft_input_data_float <= fft_input_data(71 downto 40) & fft_input_data(31 downto 0); 
   
- --   U2 : entity work.flt_fft_1 
- -- PORT MAP( 
- --aclk 											=> clk_i, --aclk : in STD_LOGIC;
- --aresetn 										=> not(rst_i),--aresetn : in STD_LOGIC;
- --s_axis_config_tdata 				=> s_axis_config_tdata_int,--s_axis_config_tdata : in STD_LOGIC_VECTOR ( 15 downto 0 );
- --s_axis_config_tvalid 			=> s_axis_config_valid_int,--s_axis_config_tvalid : in STD_LOGIC;
- --s_axis_config_tready 			=> s_axis_config_trdy_int_float,--s_axis_config_tready : out STD_LOGIC;
- --s_axis_data_tdata 					=> fft_input_data_float,--s_axis_data_tdata : in STD_LOGIC_VECTOR ( 63 downto 0 );
- --s_axis_data_tvalid 				=> s_axis_data_tvalid_int,--s_axis_data_tvalid : in STD_LOGIC;
- --s_axis_data_tready 				=> s_axis_data_trdy_int_float,--s_axis_data_tready : out STD_LOGIC;
- --s_axis_data_tlast 					=> s_axis_data_tlast_int,--s_axis_data_tlast : in STD_LOGIC;
- --m_axis_data_tdata 					=> dual_port_data_int_float,--m_axis_data_tdata : out STD_LOGIC_VECTOR ( 63 downto 0 );
- --m_axis_data_tvalid 				=> m_axis_data_tvalid_int_float,--m_axis_data_tvalid : out STD_LOGIC;
- --m_axis_data_tready 				=> '1',--m_axis_data_tready : in STD_LOGIC;
- --m_axis_data_tlast 					=> m_axis_data_tlast_int_float,--m_axis_data_tlast : out STD_LOGIC;
- --event_frame_started 				=> open,--event_frame_started : out STD_LOGIC;
- --event_tlast_unexpected 		=> open,--event_tlast_unexpected : out STD_LOGIC;
- --event_tlast_missing 				=> open,--event_tlast_missing : out STD_LOGIC;
- --event_status_channel_halt 	=> open,--event_status_channel_halt : out STD_LOGIC;
- --event_data_in_channel_halt => open,--event_data_in_channel_halt : out STD_LOGIC;
- --event_data_out_channel_halt => open--event_data_out_channel_halt : out STD_LOGIC
- -- );
+    U2 : entity work.flt_fft_1 
+  PORT MAP( 
+   aclk 											=> clk_i, --aclk : in STD_LOGIC;
+   aresetn 										=> not(rst_i),--aresetn : in STD_LOGIC;
+   s_axis_config_tdata 				=> s_axis_config_tdata_int,--s_axis_config_tdata : in STD_LOGIC_VECTOR ( 15 downto 0 );
+   s_axis_config_tvalid 			=> s_axis_config_valid_int,--s_axis_config_tvalid : in STD_LOGIC;
+   s_axis_config_tready 			=> s_axis_config_trdy_int_float,--s_axis_config_tready : out STD_LOGIC;
+   s_axis_data_tdata 					=> fft_input_data_float,--s_axis_data_tdata : in STD_LOGIC_VECTOR ( 63 downto 0 );
+   s_axis_data_tvalid 				=> s_axis_data_tvalid_int,--s_axis_data_tvalid : in STD_LOGIC;
+   s_axis_data_tready 				=> s_axis_data_trdy_int_float,--s_axis_data_tready : out STD_LOGIC;
+   s_axis_data_tlast 					=> s_axis_data_tlast_int,--s_axis_data_tlast : in STD_LOGIC;
+   m_axis_data_tdata 					=> dual_port_data_int_float,--m_axis_data_tdata : out STD_LOGIC_VECTOR ( 63 downto 0 );
+   m_axis_data_tvalid 				=> m_axis_data_tvalid_int_float,--m_axis_data_tvalid : out STD_LOGIC;
+   m_axis_data_tready 				=> '1',--m_axis_data_tready : in STD_LOGIC;
+   m_axis_data_tlast 					=> m_axis_data_tlast_int_float,--m_axis_data_tlast : out STD_LOGIC;
+   event_frame_started 				=> open,--event_frame_started : out STD_LOGIC;
+   event_tlast_unexpected 		=> open,--event_tlast_unexpected : out STD_LOGIC;
+   event_tlast_missing 				=> open,--event_tlast_missing : out STD_LOGIC;
+   event_status_channel_halt 	=> open,--event_status_channel_halt : out STD_LOGIC;
+   event_data_in_channel_halt => open,--event_data_in_channel_halt : out STD_LOGIC;
+   event_data_out_channel_halt => open--event_data_out_channel_halt : out STD_LOGIC
+    );
 
--- TEMP DEBUG ONLY !!!!!!!!!! !!!!!!!!!!
-dual_port_data_int_float <= (others=> '0');--m_axis_data_tdata : out STD_LOGIC_VECTOR ( 63 downto 0 );
-m_axis_data_tvalid_int_float <= '0';--m_axis_data_tvalid : out STD_LOGIC;
-m_axis_data_tlast_int_float  <=  '0';
+-- TEMP DEBUG ONLY: WAs used when we took out our FFT float U2 module !!!!!!!!!! !!!!!!!!!!
+--dual_port_data_int_float <= (others=> '0');--m_axis_data_tdata : out STD_LOGIC_VECTOR ( 63 downto 0 );
+--m_axis_data_tvalid_int_float <= '0';--m_axis_data_tvalid : out STD_LOGIC;
+--m_axis_data_tlast_int_float  <=  '0';
 
-m_axis_data_tvalid_int <= '0';
-m_axis_data_tlast_int <= '0'; -- m_axis_data_tlast_int_r -> for state_counter_1 --> dual_port_addr_o
+--m_axis_data_tvalid_int <= '0';
+--m_axis_data_tlast_int <= '0'; -- m_axis_data_tlast_int_r -> for state_counter_1 --> dual_port_addr_o
 
   
   ------------------------------------------
@@ -336,26 +336,26 @@ m_axis_data_tlast_int <= '0'; -- m_axis_data_tlast_int_r -> for state_counter_1 
   rising_edge_master_mode_reg <= not(delay_master_mode_reg) and master_mode_i(0);
   
 
-g_NO_U1_DEBUG : if g_USE_DEBUG_i = 0 generate -- default condition
+--g_NO_U1_DEBUG : if g_USE_DEBUG_i = 0 generate -- default condition
 
   ----------------------------------------..
   -- Counters for Output Address and Verification KEEP
   ----------------------------------------
   -- counter for lower index
-  state_counter_1 : process( clk_i, rst_i,m_axis_data_tlast_int_r)
-    begin
-      if  ( rst_i = '1' )   then
-          state_counter_1_r       <=  0 ;
-      elsif(  m_axis_data_tlast_int_r = '1' ) then
-          state_counter_1_r       <=  0 ;
-      elsif( clk_i'event and clk_i = '1') then
-        if ( m_axis_data_tvalid_int = '1') then
-          state_counter_1_r       <=  state_counter_1_r + 1;
-        end if;
-      end if;
-  end process state_counter_1;
+  --state_counter_1 : process( clk_i, rst_i,m_axis_data_tlast_int_r)
+  --  begin
+  --    if  ( rst_i = '1' )   then
+  --        state_counter_1_r       <=  0 ;
+  --    elsif(  m_axis_data_tlast_int_r = '1' ) then
+  --        state_counter_1_r       <=  0 ;
+  --    elsif( clk_i'event and clk_i = '1') then
+  --      if ( m_axis_data_tvalid_int = '1') then
+  --        state_counter_1_r       <=  state_counter_1_r + 1;
+  --      end if;
+  --    end if;
+  --end process state_counter_1;
   
-end generate g_NO_U1_DEBUG;
+--end generate g_NO_U1_DEBUG;
 
 
 g_USE_U1_FLOAT : if g_USE_DEBUG_i = 2 generate -- default condition
@@ -364,7 +364,7 @@ g_USE_U1_FLOAT : if g_USE_DEBUG_i = 2 generate -- default condition
   -- Counters for Output Address and Verification
   ----------------------------------------
   -- counter for lower index
-  state_counter_1 : process( clk_i, rst_i,m_axis_data_tlast_int_r)
+  state_counter_1 : process( clk_i, rst_i,m_axis_data_tlast_int_float_r) -- changed from t_last_int
     begin
       if  ( rst_i = '1' )   then
           state_counter_1_r       <=  0 ;
@@ -383,11 +383,11 @@ end generate g_USE_U1_FLOAT;
 -----------------------------------------
 --  Assignments
 -----------------------------------------	
-g_NO_U0_DEBUG : if g_USE_DEBUG_i = 0 generate -- default condition
-    dual_port_wr_o       <=  m_axis_data_tvalid_int;     
-    dual_port_addr_o     <=  std_logic_vector(to_unsigned(state_counter_1_r,dual_port_addr_o'length));         
-    dual_port_data_o     <=  dual_port_data_int; 
-end generate g_NO_U0_DEBUG;
+--g_NO_U0_DEBUG : if g_USE_DEBUG_i = 0 generate -- default condition
+--    dual_port_wr_o       <=  m_axis_data_tvalid_int;     
+--    dual_port_addr_o     <=  std_logic_vector(to_unsigned(state_counter_1_r,dual_port_addr_o'length));         
+--    dual_port_data_o     <=  dual_port_data_int; 
+--end generate g_NO_U0_DEBUG;
 
 g_USE_U0_FLOAT : if g_USE_DEBUG_i = 2 generate 
     dual_port_wr_o       <=  m_axis_data_tvalid_int_float;     
@@ -432,16 +432,16 @@ stall_warning_o      <=  stall_warning_int;
   
  ----------------------------------------
   -- register mlast tvalid float    KEEP !
-  ----------------------------------------.
-    m_axis_data_tlast_reg : process(clk_i, rst_i)
-  	begin
-  		if ( rst_i = '1') then
-  			 m_axis_data_tlast_int_r  <=  '0';
-
-  	  elsif(clk_i'event and clk_i  = '1') then
-         m_axis_data_tlast_int_r  <=  m_axis_data_tlast_int;
-  	  end if;
-  end process m_axis_data_tlast_reg;
+  ----------------------------------------
+ --   m_axis_data_tlast_reg : process(clk_i, rst_i)
+ -- 	begin
+ -- 		if ( rst_i = '1') then
+ -- 			 m_axis_data_tlast_int_r  <=  '0';
+ --
+ -- 	  elsif(clk_i'event and clk_i  = '1') then
+ --        m_axis_data_tlast_int_r  <=  m_axis_data_tlast_int;
+ -- 	  end if;
+ -- end process m_axis_data_tlast_reg;
    
   ----------------------------------------
   -- register mlast tvalid

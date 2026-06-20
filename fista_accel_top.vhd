@@ -735,9 +735,13 @@ begin
       --inputs                      
     from_trans_mem_valid_i          =>       valid_fr_mem_intf_to_gen_proc, --: in std_logic;
     from_trans_mem_data_i           =>       data_fr_mem_intf_to_gen_proc, --: in std_logic_vector(79 downto 0); 
-                                  
-    from_h_mem_valid_i              =>       valid_fr_big_h_mem_to_gen_proc, --: in std_logic;
-    from_h_mem_data_i               =>       data_fr_big_h_mem_to_gen_proc, --: in std_logic_vector(79 downto 0);
+    
+    -- Took out big H memory because Takes 144 RAMS /350 in device                              
+    --from_h_mem_valid_i              =>       valid_fr_big_h_mem_to_gen_proc, --: in std_logic;
+    --from_h_mem_data_i               =>       data_fr_big_h_mem_to_gen_proc, --: in std_logic_vector(79 downto 0);
+    
+    from_h_mem_valid_i              =>       '0', --: in std_logic;
+    from_h_mem_data_i               =>       (others => '0'), --: in std_logic_vector(79 downto 0);
     	                             
     from_h_star_mem_valid_i         =>       '0', --: in std_logic;
     from_h_star_mem_data_i          =>       (others => '0'), --: in std_logic_vector(79 downto 0);    	
@@ -845,26 +849,27 @@ begin
     -----------------------------------------
     --  f_h  memory
     -----------------------------------------	.
-  	  	
-  u9 : entity work.mem_h_psf_module
-  GENERIC MAP(
-	    	debug_capture_file_i => ONE_INTEGER,           -- capture file
-	      debug_state_i  =>  ZERO_INTEGER,               -- no writeback to transpose memory
-	      g_USE_DEBUG_MODE_i => g_USE_DEBUG_MODE_i       -- debug state
-	) 
- 
-  PORT MAP ( 
-  clk_i => clk_i,
-  rst_i => rst_i,                                        --clka : in STD_LOGIC;
-  master_mode_i =>   master_mode_int,                    --: in std_logic_vector(4 downto 0);
-  ena   => sram_en_int,                                  --ena : in STD_LOGIC;
-  wea   => sram_wr_en_vec_int,                           --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
-  addra => sram_addr_int,                                --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
-  dina  => data_to_mem_intf_fr_mem_in_buffer,            --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
-  douta => data_fr_big_h_mem_to_gen_proc,                 --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
-  vouta => valid_fr_big_h_mem_to_gen_proc,
-  dbg_qualify_state_i => dbg_qualify_state_verify_rd(0) -- for verfication
-  );
+ -- TEMPORARY Need to add back H memory for complete design
+ -- Taking out now for IP wrapper of BD design and synth  	  	
+ -- u9 : entity work.mem_h_psf_module
+ -- GENERIC MAP(
+ --    	debug_capture_file_i => ONE_INTEGER,           -- capture file
+ --	      debug_state_i  =>  ZERO_INTEGER,               -- no writeback to transpose memory
+ --	      g_USE_DEBUG_MODE_i => g_USE_DEBUG_MODE_i       -- debug state
+ --	) 
+ --
+ -- PORT MAP ( 
+ -- clk_i => clk_i,
+ -- rst_i => rst_i,                                        --clka : in STD_LOGIC;
+ -- master_mode_i =>   master_mode_int,                    --: in std_logic_vector(4 downto 0);
+ -- ena   => sram_en_int,                                  --ena : in STD_LOGIC;
+ -- wea   => sram_wr_en_vec_int,                           --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+ -- addra => sram_addr_int,                                --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
+ -- dina  => data_to_mem_intf_fr_mem_in_buffer,            --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
+ -- douta => data_fr_big_h_mem_to_gen_proc,                 --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
+ -- vouta => valid_fr_big_h_mem_to_gen_proc,
+--  dbg_qualify_state_i => dbg_qualify_state_verify_rd(0) -- for verfication
+--  );
   
     -----------------------------------------
     --  f_h adj memory
