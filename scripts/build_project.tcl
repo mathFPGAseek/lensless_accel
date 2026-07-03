@@ -78,6 +78,13 @@ set_property target_language VHDL [current_project]
 set_property simulator_language Mixed [current_project]
 
 # ------------------------------------------------------------
+#  Add debug stability to synthesis
+# ------------------------------------------------------------
+
+puts "Setting Vivado to single-thread mode for debug stability"
+set_param general.maxThreads 1
+
+# ------------------------------------------------------------
 # Add RTL files by reference
 # ------------------------------------------------------------
 

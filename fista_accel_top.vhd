@@ -238,6 +238,7 @@ architecture struct of fista_accel_top is
   signal dbg_rd_r                          : std_logic_vector(511 downto 0);             
   	
   constant DATA_512_MINUS_80               : std_logic_vector(431 downto 0) := (others => '0');
+  constant DATA_512_ZEROS                  : std_logic_vector(511 downto 0) := (others => '0');
   
   constant ZERO                            : natural := 0;	
   constant ONE                             : natural := 1; -- for selecting  ONE = use debug
@@ -357,6 +358,7 @@ begin
     
  --app_wdf_data_o <= (others=>'0');       --: out std_logic_vector(511 downto 0);.
    app_wdf_data_o <= DATA_512_MINUS_80 & data_to_mem_intf_fr_mem_in_buffer;
+   app_wdf_data_o <= DATA_512_ZEROS;
     -----------------------------------------
     --  init_and_inbound flow
     -----------------------------------------	
