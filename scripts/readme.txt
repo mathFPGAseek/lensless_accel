@@ -13,7 +13,6 @@ Step #2.
 /build
 /coe
 /constraints
-/ip_src
 /rtl
 /script
 
@@ -64,3 +63,6 @@ Step #7.
 Step #8.
      Launch Synthesis ( from \script)
      source synth.tcl
+     
+Step #9.
+     Launch Implementation ( from radial button or prompt after synthesis)
