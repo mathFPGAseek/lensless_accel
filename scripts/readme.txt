@@ -53,13 +53,14 @@ Step #5.
      synth.tcl 
      
 Step #6. 
-     Execute the command from a Widnows file: 
+     Execute the command from a Windows file: 
      C:\Xilinx_2022_2\Vivado\2022.2\bin\vivado.bat -mode batch -source C:\design\<your_root_name>\script\build_project.tcl  
       
       
 Step #7.
      Open the vivado Project
-     
+     C:\design\<your_root_name>\build\fa_ip_test\fa_ll_ip_test.xpr
      
 Step #8.
-     Launch Synthesis 
+     Launch Synthesis ( from \script)
+     source synth.tcl

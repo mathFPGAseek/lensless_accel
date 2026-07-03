@@ -340,15 +340,24 @@ begin
     );
     
     
-    U3 : entity xil_defaultlib.add_cnt_rd 
-    PORT MAP ( 
-    A 							=> rd_addr_from_rd_rom,--: in STD_LOGIC_VECTOR ( 15 downto 0 );
-    B 							=> rd_addr_incr_from_mem_cont,--: in STD_LOGIC_VECTOR ( 15 downto 0 );
-    CLK 						=> clk_i,--: in STD_LOGIC;
-    CE 							=> '1',--: in STD_LOGIC;
-    SCLR 						=> rst_i,--: in STD_LOGIC;
-    S 							=> rd_col_addr_int--: out STD_LOGIC_VECTOR ( 15 downto 0 )
-  );                
+    --U3 : entity xil_defaultlib.add_cnt_rd 
+    --PORT MAP ( 
+    --A 							=> rd_addr_from_rd_rom,--: in STD_LOGIC_VECTOR ( 15 downto 0 );
+    --B 							=> rd_addr_incr_from_mem_cont,--: in STD_LOGIC_VECTOR ( 15 downto 0 );
+    --CLK 						=> clk_i,--: in STD_LOGIC;
+    --CE 							=> '1',--: in STD_LOGIC;
+    --SCLR 						=> rst_i,--: in STD_LOGIC;
+    --S 							=> rd_col_addr_int--: out STD_LOGIC_VECTOR ( 15 downto 0 )
+  --); 
+  
+  process(clk_i)
+		begin
+    	if (rst_i = '1' )then
+      	rd_col_addr_int <= (others => '0');
+    	elsif(clk_i'event and clk_i = '1') then
+      	rd_col_addr_int <= std_logic_vector(unsigned(rd_addr_from_rd_rom) + unsigned(rd_addr_incr_from_mem_cont));
+    	end if;	
+	end process;             
 
     
     -----------------------------------------
