@@ -330,14 +330,14 @@ begin
         mode_change_i          => rising_edge_master_mode_reg,
                              
         s_axis_config_valid_o  => s_axis_config_valid_int,-- : out std_logic;
-        s_axis_config_trdy_i   => s_axis_config_trdy_int,-- : in std_logic;
+        s_axis_config_trdy_i   => s_axis_config_trdy_int_float,-- : in std_logic;
         s_axis_config_tdata_o  => s_axis_config_tdata_int,-- : out std_logic_vector(15 downto 0);
                             
         s_axis_data_tvalid_o   => s_axis_data_tvalid_int,-- : out std_logic;
-        s_axis_data_trdy_i     => s_axis_data_trdy_int,-- : in std_logic;
+        s_axis_data_trdy_i     => s_axis_data_trdy_int_float,-- : in std_logic;
         s_axis_data_tlast_o    => s_axis_data_tlast_int,-- : out std_logic;
         
-        m_axis_data_tlast_i    => m_axis_data_tlast_int,
+        m_axis_data_tlast_i    => m_axis_data_tlast_int_float,
         
         fft_rdy_o              => fft_rdy_int, 
                             
@@ -426,33 +426,28 @@ begin
  -- split data for float input
  fft_input_data_float <= fft_input_data(71 downto 40) & fft_input_data(31 downto 0); 
   
- --   U2 : entity work.flt_fft_1 
- -- PORT MAP( 
- --aclk 											=> clk_i, --aclk : in STD_LOGIC;
- --aresetn 										=> not(rst_i),--aresetn : in STD_LOGIC;
- --s_axis_config_tdata 				=> s_axis_config_tdata_int,--s_axis_config_tdata : in STD_LOGIC_VECTOR ( 15 downto 0 );
- --s_axis_config_tvalid 			=> s_axis_config_valid_int,--s_axis_config_tvalid : in STD_LOGIC;
- --s_axis_config_tready 			=> s_axis_config_trdy_int_float,--s_axis_config_tready : out STD_LOGIC;
- --s_axis_data_tdata 					=> fft_input_data_float,--s_axis_data_tdata : in STD_LOGIC_VECTOR ( 63 downto 0 );
- --s_axis_data_tvalid 				=> s_axis_data_tvalid_int,--s_axis_data_tvalid : in STD_LOGIC;
- --s_axis_data_tready 				=> s_axis_data_trdy_int_float,--s_axis_data_tready : out STD_LOGIC;
- --s_axis_data_tlast 					=> s_axis_data_tlast_int,--s_axis_data_tlast : in STD_LOGIC;
- --m_axis_data_tdata 					=> dual_port_data_int_float,--m_axis_data_tdata : out STD_LOGIC_VECTOR ( 63 downto 0 );
- --m_axis_data_tvalid 				=> m_axis_data_tvalid_int_float,--m_axis_data_tvalid : out STD_LOGIC;
- --m_axis_data_tready 				=> '1',--m_axis_data_tready : in STD_LOGIC;
- --m_axis_data_tlast 					=> m_axis_data_tlast_int_float,--m_axis_data_tlast : out STD_LOGIC;
- --event_frame_started 				=> open,--event_frame_started : out STD_LOGIC;
- --event_tlast_unexpected 		=> open,--event_tlast_unexpected : out STD_LOGIC;
- --event_tlast_missing 				=> open,--event_tlast_missing : out STD_LOGIC;
- --event_status_channel_halt 	=> open,--event_status_channel_halt : out STD_LOGIC;
- --event_data_in_channel_halt => open,--event_data_in_channel_halt : out STD_LOGIC;
- --event_data_out_channel_halt => open--event_data_out_channel_halt : out STD_LOGIC
- -- );
-
--- TEMP DEBUG ONLY !!!!!!!!!! !!!!!!!!!!
-dual_port_data_int_float <= (others=> '0');--m_axis_data_tdata : out STD_LOGIC_VECTOR ( 63 downto 0 );
-m_axis_data_tvalid_int_float <= '0';--m_axis_data_tvalid : out STD_LOGIC;
-m_axis_data_tlast_int_float  <=  '0';
+    U2 : entity work.flt_fft_1 
+  PORT MAP( 
+ aclk 											=> clk_i, --aclk : in STD_LOGIC;
+ aresetn 										=> not(rst_i),--aresetn : in STD_LOGIC;
+ s_axis_config_tdata 				=> s_axis_config_tdata_int,--s_axis_config_tdata : in STD_LOGIC_VECTOR ( 15 downto 0 );
+ s_axis_config_tvalid 			=> s_axis_config_valid_int,--s_axis_config_tvalid : in STD_LOGIC;
+ s_axis_config_tready 			=> s_axis_config_trdy_int_float,--s_axis_config_tready : out STD_LOGIC;
+ s_axis_data_tdata 					=> fft_input_data_float,--s_axis_data_tdata : in STD_LOGIC_VECTOR ( 63 downto 0 );
+ s_axis_data_tvalid 				=> s_axis_data_tvalid_int,--s_axis_data_tvalid : in STD_LOGIC;
+ s_axis_data_tready 				=> s_axis_data_trdy_int_float,--s_axis_data_tready : out STD_LOGIC;
+ s_axis_data_tlast 					=> s_axis_data_tlast_int,--s_axis_data_tlast : in STD_LOGIC;
+ m_axis_data_tdata 					=> dual_port_data_int_float,--m_axis_data_tdata : out STD_LOGIC_VECTOR ( 63 downto 0 );
+ m_axis_data_tvalid 				=> m_axis_data_tvalid_int_float,--m_axis_data_tvalid : out STD_LOGIC;
+ m_axis_data_tready 				=> '1',--m_axis_data_tready : in STD_LOGIC;
+ m_axis_data_tlast 					=> m_axis_data_tlast_int_float,--m_axis_data_tlast : out STD_LOGIC;
+ event_frame_started 				=> open,--event_frame_started : out STD_LOGIC;
+ event_tlast_unexpected 		=> open,--event_tlast_unexpected : out STD_LOGIC;
+ event_tlast_missing 				=> open,--event_tlast_missing : out STD_LOGIC;
+ event_status_channel_halt 	=> open,--event_status_channel_halt : out STD_LOGIC;
+ event_data_in_channel_halt => open,--event_data_in_channel_halt : out STD_LOGIC;
+ event_data_out_channel_halt => open--event_data_out_channel_halt : out STD_LOGIC
+  );
 
   
   ------------------------------------------

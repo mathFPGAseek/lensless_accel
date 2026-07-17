@@ -535,9 +535,9 @@ generic (
             	
             	decoder_st_d <= "00000010"; -- Write in B
             	
-            	if ( (rdy_fr_init_and_inbound_i = '0' ) or
-            		   (wait_fr_init_and_inbound_i = '1' ) or -- to stall; inbound FIFO levels
-            		   (app_rdy_i = '0' ) or 
+            	--if ( (rdy_fr_init_and_inbound_i = '0' ) or
+            	--	   (wait_fr_init_and_inbound_i = '1' ) or -- to stall; inbound FIFO levels
+            	if (   (app_rdy_i = '0' ) or 
             		   (app_wdf_rdy_i = '0' ) 
             		 ) then
             		ns_controller        <= state_init;

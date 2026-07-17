@@ -52,6 +52,14 @@ module tb_top;
     .s00_axi_rvalid  (s_rvalid),
     .s00_axi_rready  (s_rready)
   );
+  
+  initial begin
+  #1;
+  $display("TB at 1 ns: aclk=%b aresetn=%b", aclk, aresetn);
+  $display("DUT at 1 ns: clk=%b resetn=%b",
+           dut.s00_axi_aclk,
+           dut.s00_axi_aresetn);
+end
 
   // ---- Minimal AXI4-Lite master tasks (no VIP) ----
   //task automatic axi_write32(input [31:0] addr, input [31:0] data);
@@ -228,7 +236,7 @@ module tb_top;
     
      
     
-    #1000 $finish;
+    //#1000 $finish;
     
     
     

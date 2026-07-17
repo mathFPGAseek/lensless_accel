@@ -786,15 +786,30 @@ process_write_d <= not(master_mode_i(2)) and not(master_mode_i(1)) and master_mo
   --                                       256 257 258  ... 511]  this in COE; The Matlab is consistent with this VHDL process below 
   --
   -- Another way of thinking of the process below is that we are writing to the matrix h_read_mem( e.g.) down a row because
-  -- our addressing from VHDL is down the column with addr: 0 256 512 .....
-  RamProcRawData : process(clk_i,rst_i)
+  -- our addressing from VHDL is down the column with addr: 0 256 512 ....
+  
+  -- USE FOR 2 CLK READ LATENCY
+  --RamProcRawData : process(clk_i,rst_i)
+  --
+  --  begin
+  --	  if ( rst_i = '1' ) then       
+  --       dummy <= '1';
+  --    	
+  --	  elsif enable_read_rr = '1' then 		  
+  --		  fft_raw_mem(state_counter_1_rrr,state_counter_2_r) <= data_out_r(71 downto 40) & data_out_r(31 downto 0);  				  			  				  
+	--			  
+  --		end if;
+  -- end process RamProcRawData; 
+ 
+ -- USE FOR 1 CLK READ LATENCY  
+    RamProcRawData : process(clk_i,rst_i)
 
     begin
   	  if ( rst_i = '1' ) then       
          dummy <= '1';
       	
-  	  elsif enable_read_rr = '1' then 		  
-  		  fft_raw_mem(state_counter_1_rrr,state_counter_2_r) <= data_out_r(71 downto 40) & data_out_r(31 downto 0);  				  			  				  
+  	  elsif enable_read_r = '1' then 		  
+  		  fft_raw_mem(state_counter_1_rr,state_counter_2_r) <= data_out_r(71 downto 40) & data_out_r(31 downto 0);  				  			  				  
 				  
   		end if;
    end process RamProcRawData;  
