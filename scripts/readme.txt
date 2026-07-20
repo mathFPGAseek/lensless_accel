@@ -31,7 +31,7 @@ Copy from git the following files ( and only the following files) to /rtl
      inbound_flow_module.vhd
      init_state_machine_controller.vhd
      master_machine_controller.vhd
-     mem_controller.vhd
+     mem_controller_FOR_SYNTH.vhd
      mem_in_buffer_module.vhd
      mem_st_machine_controller.vhd
      mem_transpose_module_ONLY_FOR_BD_SYNTH.vhd
