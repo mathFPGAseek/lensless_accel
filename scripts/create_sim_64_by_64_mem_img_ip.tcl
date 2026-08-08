@@ -71,7 +71,7 @@ set_property -dict {
    CONFIG.Register_PortB_Output_of_Memory_Core {false}
    CONFIG.Register_PortB_Output_of_Memory_Primitives {false}   
    CONFIG.Use_Byte_Write_Enable {false}  
-   CONFIG.Write_Depth_A {256}
+   CONFIG.Write_Depth_A {64}
    CONFIG.Write_Width_A {80}
    CONFIG.Write_Width_B {80}  
 } [get_ips mem_buf]
@@ -94,7 +94,7 @@ set_property -dict {
    CONFIG.Read_Width_A  {32} 
    CONFIG.Register_PortA_Output_of_Memory_Core  {false}
    CONFIG.Register_PortA_Output_of_Memory_Primitives  {true}  
-   CONFIG.Write_Depth_A  {65536}
+   CONFIG.Write_Depth_A  {4096}
    CONFIG.Write_Width_A  {32} 
 } [get_ips mem_init]
    
@@ -222,7 +222,7 @@ set_property -dict {
    CONFIG.Read_Width_A  {16} 
    CONFIG.Register_PortA_Output_of_Memory_Core  {false}
    CONFIG.Register_PortA_Output_of_Memory_Primitives  {false}  
-   CONFIG.Write_Depth_A  {256}
+   CONFIG.Write_Depth_A  {64}
    CONFIG.Write_Width_A  {16}   
 } [get_ips mem_rd_addr]   
 
@@ -240,7 +240,7 @@ set_property -dict {
    CONFIG.Read_Width_A  {8} 
    CONFIG.Register_PortA_Output_of_Memory_Core  {false}
    CONFIG.Register_PortA_Output_of_Memory_Primitives  {false}  
-   CONFIG.Write_Depth_A  {256}
+   CONFIG.Write_Depth_A  {64}
    CONFIG.Write_Width_A  {8} 
 } [get_ips mem_wr_addr ]    
 
@@ -411,13 +411,13 @@ set_property -dict {
    CONFIG.memory_options_phase_factors  {block_ram}
    CONFIG.memory_options_reorder  {block_ram}
    CONFIG.number_of_stages_using_block_ram_for_data_and_phase_factors  {1}
-   CONFIG.output_ordering  {bit_reversed_order}
+   CONFIG.output_ordering  {natural_order}
    CONFIG.phase_factor_width  {24}
    CONFIG.run_time_configurable_transform_length  {false}
    CONFIG.target_clock_frequency  {300}
    CONFIG.target_data_throughput  {50}
    CONFIG.throttle_scheme  {nonrealtime}
-   CONFIG.transform_length  {256}
+   CONFIG.transform_length  {64}
    CONFIG.xk_index  {false}
  } [get_ips flt_fft_1 ]
 
@@ -440,7 +440,7 @@ puts [get_property PART [current_project]]
 #
 
 set ip_obj [get_ips mem_init]
-set coe_file [file normalize [file join $coe_dir "point_source_vectors.coe"]]
+set coe_file [file normalize [file join $coe_dir "point_source_vectors_64_by_64.coe"]]
 
 puts "Setting COE file for IP : $ip_obj"
 puts "Coe_file path: $coe_file"
@@ -457,7 +457,7 @@ set_property -dict [list \
 
 
 set ip_obj [get_ips mem_rd_addr]
-set coe_file [file normalize [ file join $coe_dir "read_addr_vectors.coe"]]
+set coe_file [file normalize [ file join $coe_dir "read_addr_vectors_64_by_64.coe"]]
 
 puts "Setting COE file for IP :  $ip_obj"
 puts "COE_file path : $coe_file"
@@ -473,7 +473,7 @@ set_property -dict [list \
 
 
 set ip_obj [get_ips mem_wr_addr]
-set coe_file [file normalize [ file join $coe_dir "wr_addr_vectors.coe"]]
+set coe_file [file normalize [ file join $coe_dir "wr_addr_vectors_64_by_64.coe"]]
 
 puts "Setting COE file for IP :  $ip_obj"
 puts "COE_file path : $coe_file"
