@@ -192,7 +192,7 @@ signal rd_col_addr_int                 : std_logic_vector(15 downto 0);
 signal select_wr_rom_en         : std_logic;
 signal select_rd_rom_en         : std_logic;
 
---signal app_en_int               : std_logic;  
+--signal app_en_int.               : std_logic;  
 
 signal enable_for_rom_int       : std_logic;  
 
@@ -200,10 +200,30 @@ component mem_wr_addr
     port( 
     clka   : in STD_LOGIC;
     ena    : in STD_LOGIC;
-    addra  : in STD_LOGIC_VECTOR ( 7 downto 0 );
+    addra  : in STD_LOGIC_VECTOR ( 5 downto 0 );
     douta  : out STD_LOGIC_VECTOR ( 7 downto 0 )
     );
 end component; 
+	
+component mem_rd_addr 
+    port ( 
+    clka     : in STD_LOGIC;          --=>   clk_i,--: in STD_LOGIC;
+    ena      : in STD_LOGIC;         --=>   select_rd_rom_en,--: in STD_LOGIC;
+    addra    : in STD_LOGIC_VECTOR ( 5 downto 0 );         --=>   mem_shared_in_addb_int(5 downto 0),--: in STD_LOGIC_VECTOR ( 7 downto 0 );
+    douta    : out STD_LOGIC_VECTOR ( 15 downto 0 )        --=>   rd_addr_from_rd_rom--: out STD_LOGIC_VECTOR ( 15 downto 0 )
+    );	
+end component;
+	
+component add_cnt_rd 
+    port ( 
+    A 		 : in STD_LOGIC_VECTOR ( 15 downto 0);				--=> rd_addr_from_rd_rom,--: in STD_LOGIC_VECTOR ( 15 downto 0 );
+    B 		 : in STD_LOGIC_VECTOR ( 15 downto 0);				--=> rd_addr_incr_from_mem_cont,--: in STD_LOGIC_VECTOR ( 15 downto 0 );
+    CLK 	 : in STD_LOGIC;					--=> clk_i,--: in STD_LOGIC;
+    CE 		 : in STD_LOGIC;					--=> '1',--: in STD_LOGIC;
+    SCLR 	 : in STD_LOGIC;					----=> rst_i,--: in STD_LOGIC;
+    S 		 : out STD_LOGIC_VECTOR ( 15 downto 0)					--=> rd_col_addr_int--: out STD_LOGIC_VECTOR ( 15 downto 0 )
+  ); 	
+end component;
 	
 begin
   
@@ -319,7 +339,7 @@ begin
     select_wr_rom_en <= not(master_mode_i(0)) and mem_shared_in_enb_int;
   
     
-    U1 : entity xil_defaultlib.mem_wr_addr
+    U1 : mem_wr_addr
     PORT MAP( 
     clka              =>   clk_i,--: in STD_LOGIC;
     ena               =>   select_wr_rom_en,--: in STD_LOGIC;
@@ -327,11 +347,11 @@ begin
     douta             =>   mem_shared_out_addb_int--: out STD_LOGIC_VECTOR ( 7 downto 0 )
     );
     
-    --select_rd_rom_en <= master_mode_i(0) and app_en_int;
+    --select_rd_rom_en <= master_mode_i(0) and app_en_int;.
     select_rd_rom_en <= master_mode_i(0) and enable_for_rom_int;
 
             
-    U2 : entity xil_defaultlib.mem_rd_addr 
+    U2 : mem_rd_addr 
     PORT MAP( 
     clka              =>   clk_i,--: in STD_LOGIC;
     ena               =>   select_rd_rom_en,--: in STD_LOGIC;
@@ -340,7 +360,7 @@ begin
     );
     
     
-    U3 : entity xil_defaultlib.add_cnt_rd 
+    U3 : add_cnt_rd 
     PORT MAP ( 
     A 							=> rd_addr_from_rd_rom,--: in STD_LOGIC_VECTOR ( 15 downto 0 );
     B 							=> rd_addr_incr_from_mem_cont,--: in STD_LOGIC_VECTOR ( 15 downto 0 );

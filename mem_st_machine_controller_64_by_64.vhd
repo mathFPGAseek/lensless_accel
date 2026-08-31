@@ -604,7 +604,7 @@ generic (
                  ) then 
               	   ns_controller <= state_DEBUG_STOP;
               	   
-              	elsif(  (state_counter_14_r >= IMAGE64X64 )  and  -- 
+              	elsif(  (state_counter_4_r >= IMAGE64X64 )  and  -- 
               	  (master_mode_i  = "00000")   and (stop_fft1d_dbg_i  = '1')           		   	 
                  ) then 
               	   ns_controller <= state_chk_1dfft_dbg;

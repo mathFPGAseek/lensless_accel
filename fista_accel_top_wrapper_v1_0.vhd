@@ -238,8 +238,9 @@ proto_mem_v3_0_S00_AXI_inst : proto_mem_v3_0_S00_AXI
 	-- operations for this memory
 	
 	
-	done_sig <= '0';
-
+	--done_sig <= '0';
+  done_sig <= axi_intf_stop_debug_sig;
+    
   -- ctrl 0
 	axi_intf_sram_t1_mem_en_int_debug_sig <= ctrl_0_sig(0);
 	axi_intf_sram_t1_mem_wr_en_vec_int_debug_sig(0) <= ctrl_0_sig(1);

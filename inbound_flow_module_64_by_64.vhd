@@ -72,7 +72,16 @@ signal re_dout     : std_logic_vector ( 31 downto 0 );
 --constant
 constant IMAG_ZEROS : std_logic_vector(39 downto 0) := (others=> '0');
 constant PAD_8_ZEROS : std_logic_vector(7 downto 0) := (others=> '0');
-
+	
+component mem_init
+	port (
+	clka            : in std_logic;--=>      clk_i,         --: in STD_LOGIC;
+  ena             : in std_Logic;--=>      en_int,        --: in STD_LOGIC;
+  addra           : in std_logic_vector(11 downto 0);--=>      addr_int(11 downto 0),      --: in STD_LOGIC_VECTOR ( 15 downto 0 );
+  douta           : out std_logic_vector(31 downto 0)--=>      re_dout        --: out STD_LOGIC_VECTOR ( 31 downto 0 )
+  
+);
+end component;
 
 
 begin
@@ -128,7 +137,7 @@ begin
   --);
                                         
   
-   U1 : entity work.mem_init 
+   U1 : mem_init 
    PORT MAP ( 
     clka            =>      clk_i,         --: in STD_LOGIC;
     ena             =>      en_int,        --: in STD_LOGIC;

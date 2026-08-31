@@ -12,15 +12,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="161,692.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="162,847.001 ns"></ZoomEndTime>
-      <Cursor1Time time="162,115.000 ns"></Cursor1Time>
+      <ZoomStartTime time="1.000000 us"></ZoomStartTime>
+      <ZoomEndTime time="5.882019 us"></ZoomEndTime>
+      <Cursor1Time time="162.115000 us"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="313"></NameColumnWidth>
-      <ValueColumnWidth column_width="133"></ValueColumnWidth>
+      <ValueColumnWidth column_width="129"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="143" />
+   <WVObjectSize size="155" />
    <wave_markers>
       <marker time="162015000" label="" />
    </wave_markers>
@@ -608,5 +608,54 @@
    <wvobject fp_name="/tb_top/dut/U1/u6/enable_read_rr" type="logic">
       <obj_property name="ElementShortName">enable_read_rr</obj_property>
       <obj_property name="ObjectShortName">enable_read_rr</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider185">
+      <obj_property name="label">Mux to BUffer</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#D2691E</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/ena_to_buffer" type="logic">
+      <obj_property name="ElementShortName">ena_to_buffer</obj_property>
+      <obj_property name="ObjectShortName">ena_to_buffer</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/wea_to_buffer" type="array">
+      <obj_property name="ElementShortName">wea_to_buffer[0:0]</obj_property>
+      <obj_property name="ObjectShortName">wea_to_buffer[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/addr_to_buffer" type="array">
+      <obj_property name="ElementShortName">addr_to_buffer[7:0]</obj_property>
+      <obj_property name="ObjectShortName">addr_to_buffer[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/data_to_buffer" type="array">
+      <obj_property name="ElementShortName">data_to_buffer[79:0]</obj_property>
+      <obj_property name="ObjectShortName">data_to_buffer[79:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/dual_port_wr_int" type="array">
+      <obj_property name="ElementShortName">dual_port_wr_int[0:0]</obj_property>
+      <obj_property name="ObjectShortName">dual_port_wr_int[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/dual_port_addr_int" type="array">
+      <obj_property name="ElementShortName">dual_port_addr_int[16:0]</obj_property>
+      <obj_property name="ObjectShortName">dual_port_addr_int[16:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/dual_port_data_int" type="array">
+      <obj_property name="ElementShortName">dual_port_data_int[79:0]</obj_property>
+      <obj_property name="ObjectShortName">dual_port_data_int[79:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/to_buffer_trans_mem_port_wr_int" type="array">
+      <obj_property name="ElementShortName">to_buffer_trans_mem_port_wr_int[0:0]</obj_property>
+      <obj_property name="ObjectShortName">to_buffer_trans_mem_port_wr_int[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/to_buffer_trans_mem_port_addr_int" type="array">
+      <obj_property name="ElementShortName">to_buffer_trans_mem_port_addr_int[16:0]</obj_property>
+      <obj_property name="ObjectShortName">to_buffer_trans_mem_port_addr_int[16:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/to_buffer_trans_mem_port_data_int" type="array">
+      <obj_property name="ElementShortName">to_buffer_trans_mem_port_data_int[79:0]</obj_property>
+      <obj_property name="ObjectShortName">to_buffer_trans_mem_port_data_int[79:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/master_mode_int" type="array">
+      <obj_property name="ElementShortName">master_mode_int[4:0]</obj_property>
+      <obj_property name="ObjectShortName">master_mode_int[4:0]</obj_property>
    </wvobject>
 </wave_config>

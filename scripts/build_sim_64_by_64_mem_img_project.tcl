@@ -31,7 +31,7 @@ set build_root [file normalize [file join $repo_root "build"]]
 set proj_dir   [file normalize [file join $build_root $proj_name]]
 
 # Source directories
-set rtl_dir    [file normalize [file join $repo_root "rtl"]]
+set rtl_dir    [file normalize [file join $repo_root "rtl_sim"]]
 set xdc_dir    [file normalize [file join $repo_root "constraints"]]
 set coe_dir    [file normalize [file join $repo_root "coe"]]
 set ip_src_dir [file normalize [file join $repo_root "ip_src"]]

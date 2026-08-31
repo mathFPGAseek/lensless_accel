@@ -33,6 +33,22 @@ signal data_out_r   : std_logic_vector( 79 downto 0);
 signal data_out_rr  : std_logic_vector( 79 downto 0);
 	
 	
+component mem_buf
+	port (
+		clka      : in STD_LOGIC;
+    ena       : in STD_LOGIC;
+    wea       : in STD_LOGIC_VECTOR ( 0 to 0 );
+    addra     : in STD_LOGIC_VECTOR ( 5 downto 0 );
+    dina      : in STD_LOGIC_VECTOR ( 79 downto 0 );
+    clkb      : in STD_LOGIC;
+    enb       : in STD_LOGIC;
+    addrb     : in STD_LOGIC_VECTOR ( 5 downto 0 );
+    doutb     : out STD_LOGIC_VECTOR ( 79 downto 0 )
+		
+	);
+end component;
+	
+	
 begin
 	
 --U1 : entity work.blk_dual_mem_gen_0
@@ -48,7 +64,7 @@ begin
 --  doutb     =>  doutb_int                --: out STD_LOGIC_VECTOR ( 79 downto 0 ).
 --);
   
-  U1 : entity work.mem_buf
+  U1 : mem_buf
   PORT MAP( 
     clka      =>  clk_i,               --: in STD_LOGIC;.
     ena       =>  ena,                --: in STD_LOGIC;
