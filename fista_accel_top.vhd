@@ -258,6 +258,13 @@ architecture struct of fista_accel_top is
   																				 -- set to 4 for Update sim debug;( 1R & 1W Mem))
   
   signal dbg_qualify_state_verify_rd       : std_logic_vector(2 downto 0);
+  	
+  attribute keep_hierarchy : string;
+  attribute dont_touch     : string;
+
+  attribute keep_hierarchy of u4 : label is "yes";
+  attribute dont_touch     of u4 : label is "yes";
+  
 begin
   
    

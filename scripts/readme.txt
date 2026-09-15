@@ -240,6 +240,11 @@ Step #5..
 
      build_sim_256_by_256_mem_img_project.tcl
      create_sim_256_by_256_mem_img_ip.tcl
+     
+     #Copy from git the following folder contents:
+     /verification
+     /waveforms
+     
 
 Step #6. 
      #Execute the command from a Windows file: 
@@ -304,12 +309,15 @@ Step #3:
 Substitute file  : mem_transpose_module_64_by_64_no_verify_use_w_axi_sim
 for file : mem_transpose_module_64_by_64.vhd
 
+Substitute file : tb_old_school_top_fft1d_test.sv 
+for file: tb_old_school_top.sv
+
 Step #4:
 Verify first three read tranactions match expected values in Matlab
 
 
 #------------------------------------------------------------------------------
-# SYNTHESIS & IMPLEMENTATION 64x64 image w/ AXI Only Transpose Memory
+# SYNTHESIS & IMPLEMENTATION 64x64 image w/ AXI Interface
 #------------------------------------------------------------------------------
 
 Step #1:
@@ -317,10 +325,13 @@ Follow instructions for : SIMULATION 64x64 image w/o AXI Interface,
 but name directory for rtl_syn
 
 Step #1A:
-Except ignore instructions 6-14 from Step #1
+Except ignore instructions 5-14
 
-Step #2:
+Step #2: 
 Copy from git the following file:
+
+build_syn_64_by_64_mem_img_project.tcl
+create_syn_64_by_64_mem_img_ip.tcl
 synth.tcl
 
 Step #3: 
@@ -334,6 +345,7 @@ for file : mem_transpose_module_64_by_64.vhd
 Step #5:
 Substitute file  : fft_engine_module_64_by_64_no_verify.vhd
 for file : fft_engine_module_64_by_64.vhd
+
 
 Step #6
 Change Top level of fista_accel_top.vhd 
