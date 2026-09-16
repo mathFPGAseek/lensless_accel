@@ -156,7 +156,7 @@ Step #9.
      
 Step #10.
      ( At tcl prompt) > restart
-     > run all ( run to about 7 ms)   
+     > run all ( run to about 7 us)   
      
 
 Step #11.
