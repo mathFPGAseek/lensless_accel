@@ -286,7 +286,7 @@ Step #14.
 Verify that figures are < 10E-7 error
 
 #------------------------------------------------------------------------------
-# SIMULATION 64x64 image with AXI Interface
+# SIMULATION 64x64 image with AXI Interface ( Really means no Matlab and no generation of usable Sim Text )
 #------------------------------------------------------------------------------
 
 Step #1: 
@@ -313,7 +313,7 @@ Substitute file : tb_old_school_top_fft1d_test.sv
 for file: tb_old_school_top.sv
 
 Step #4:
-Verify first three read tranactions match expected values in Matlab
+Verify first three read tranactions match expected values in Matlab( do not run full matlab)
 
 
 #------------------------------------------------------------------------------

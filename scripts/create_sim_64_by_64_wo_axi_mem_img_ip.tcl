@@ -2,12 +2,12 @@
 
 # Directory structure:
 # root/
-#   build/
-#   scripts/
-#   ip_src/
-#   constraints/
-#   rtl_src/
-#   coe/
+# build/
+# scripts/
+# ip_src/
+# constraints/
+# rtl_src/
+# coe/
 
 set script_dir [file dirname [file normalize [info script]]]
 set root_dir   [file normalize [file join $script_dir ".."]]
@@ -426,19 +426,88 @@ set_property -dict {
 puts "Project part:"
 puts [get_property PART [current_project]]
 
+
+# ============================================================
+# IP 12:  PS FIFO
+# ============================================================
+create_ip -name fifo_generator -vendor xilinx.com -library ip \
+    -version 13.2 -module_name fifo_256
+
+set_property -dict {
+    CONFIG.Interface_Type       {Native}
+    CONFIG.Fifo_Implementation  {Common_Clock_Block_RAM}
+    CONFIG.Input_Data_Width     {16}
+    CONFIG.Input_Depth          {256}
+    CONFIG.Almost_Full_Flag     {false}
+    CONFIG.Almost_Empty_Flag    {false}
+    CONFIG.Overflow_Flag        {false}
+    CONFIG.Underflow_Flag       {false}
+    CONFIG.Valid_Flag           {false}
+    CONFIG.Write_Acknowledge_Flag {false}
+} [get_ips fifo_256]
+
+# ============================================================
+# IP 13:  blk_mem_image_gen_LL_0
+# ============================================================
+create_ip -name blk_mem_gen -vendor xilinx.com -library ip -version 8.4 -module_name mem2_img
+
+set_property -dict {
+   CONFIG.Enable_A  {Use_ENA_Pin}  
+   CONFIG.Load_Init_File  {false}
+   CONFIG.Memory_Type  {Single_Port_RAM}
+   CONFIG.Read_Width_A  {80}
+   CONFIG.Write_Width_A  {80} 
+   CONFIG.Write_Depth_A  {4096}   
+   CONFIG.Interface_Type {Native}  
+   CONFIG.PRIM_type_to_Implement {BRAM} 
+   CONFIG.Algorithm {Minimum_Area}    
+   CONFIG.Use_Byte_Write_Enable {false} 
+   CONFIG.Byte_Size {9} 
+   CONFIG.Operating_Mode_A {WRITE_FIRST} 
+   CONFIG.Register_PortA_Output_of_Memory_Primitives {false} 
+   CONFIG.Register_PortA_Output_of_Memory_Core {false}  
+} [get_ips mem2_img]
+
+# ============================================================
+# IP 14: mem1_test_fwd_fft2d_src_image
+# ============================================================
+create_ip -name blk_mem_gen -vendor xilinx.com -library ip -version 8.4 -module_name mem1_test_fwd_fft2d_src_image
+
+set_property -dict {
+   CONFIG.Enable_A  {Use_ENA_Pin}  
+   CONFIG.Load_Init_File  {false}
+   CONFIG.Memory_Type  {Single_Port_RAM}
+   CONFIG.Read_Width_A  {80}
+   CONFIG.Write_Width_A  {80} 
+   CONFIG.Write_Depth_A  {4096}   
+   CONFIG.Interface_Type {Native}  
+   CONFIG.PRIM_type_to_Implement {BRAM} 
+   CONFIG.Algorithm {Minimum_Area}    
+   CONFIG.Use_Byte_Write_Enable {false} 
+   CONFIG.Byte_Size {9} 
+   CONFIG.Operating_Mode_A {WRITE_FIRST} 
+   CONFIG.Register_PortA_Output_of_Memory_Primitives {false} 
+   CONFIG.Register_PortA_Output_of_Memory_Core {false}  
+} [get_ips mem1_test_fwd_fft2d_src_image]
+
 # ============================================================
 # COE FILES
 # ============================================================
 #
-# IP 3:  blk_mem_32bit_gen_REGEN_LL_0:
-# CONFIG.Coe_File {../../coe/point_source_vectors.coe}
+# IP 3:  blk_mem_32bit_gen_REGEN_LL_0: -module_name mem_init
+# CONFIG.Coe_File {../../coe/point_source_vectors_64_by_64.coe}
 #
-# IP 6:  blk_rd_addr_mem_gen_no_reg_REGEN_LL_0
-# CONFIG.Coe_File {../../coe/read_addr_vectors.coe}
+# IP 6:  blk_rd_addr_mem_gen_no_reg_REGEN_LL_0: -module_name mem_rd_addr
+# CONFIG.Coe_File {../../coe/read_addr_vectors_64_by_64.coe}
 #
-# IP 7:  blk_wr_addr_mem_gen_no_reg_REGEN_LL_0
-#
+# IP 7:  blk_wr_addr_mem_gen_no_reg_REGEN_LL_0: -module_name mem_wr_addr
+# CONFIG.Coe_File {../../coe/wr_addr_vectors_64_by_64.coe}
+# 
+# IP 14: -module_name  mem1_test_fwd_fft2d_src_image
+# CONFIG.Coe_File {../../coe/point_source_vectors_64_by_64.coe}
 
+
+# IP 3 memory content initialization
 set ip_obj [get_ips mem_init]
 set coe_file [file normalize [file join $coe_dir "point_source_vectors_64_by_64.coe"]]
 
@@ -456,6 +525,8 @@ set_property -dict [list \
 
 
 
+
+# IP 6 memory content initialization
 set ip_obj [get_ips mem_rd_addr]
 set coe_file [file normalize [ file join $coe_dir "read_addr_vectors_64_by_64.coe"]]
 
@@ -472,6 +543,8 @@ set_property -dict [list \
 ] $ip_obj
 
 
+
+# IP 7 memory content initialization
 set ip_obj [get_ips mem_wr_addr]
 set coe_file [file normalize [ file join $coe_dir "wr_addr_vectors_64_by_64.coe"]]
 
@@ -488,7 +561,26 @@ set_property -dict [list \
 ] $ip_obj
 
 
-foreach ip_name {mem_init mem_rd_addr mem_wr_addr } {
+
+# IP 14 memory content initialization
+set ip_obj [get_ips mem1_test_fwd_fft2d_src_image]
+set coe_file [file normalize [ file join $coe_dir "point_source_vectors_64_by_64.coe"]]
+
+puts "Setting COE file for IP :  $ip_obj"
+puts "COE_file path : $coe_file"
+
+if {![file exists $coe_file]} {
+   error "COE file not found: $coe_file"
+}
+
+set_property -dict [list \
+   CONFIG.Load_Init_File {true} \
+   CONFIG.Coe_File $coe_file \
+] $ip_obj
+
+
+
+foreach ip_name {mem_init mem_rd_addr mem_wr_addr mem1_test_fwd_fft2d_src_image } {
     set ip_obj [get_ips $ip_name]
 
     puts "--------------------------------"

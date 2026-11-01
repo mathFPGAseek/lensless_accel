@@ -49,7 +49,7 @@ float_point_length = 32;
 
 % Capture fft1d @ memory tranpose module after write from fft
 % This is test from portable build for Full Memory 256x256
-fft1dmemvectors  = importfile("C:\design\fa_ll_sim_64\build\fa_ll_ip_test\fa_ll_ip_test.sim\sim_1\behav\xsim\MEM_TRANSPOSE_col_rd_mem_raw_fft_1d_float_vectors_64_by_64.txt",[1,Inf]);
+fft1dmemvectors  = importfile("C:\design\fa_ll_sim_64_debugger_fix_syn_sim\build\fa_ll_ip_test\fa_ll_ip_test.sim\sim_1\behav\xsim\MEM_TRANSPOSE_col_rd_mem_raw_fft_1d_float_vectors_64_by_64.txt",[1,Inf]);
 
 
 % debug from 1d FFT with point source; 2nd and 3rd This has a bug with the

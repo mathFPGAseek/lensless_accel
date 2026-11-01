@@ -514,6 +514,7 @@ generic (
    	      falling_mvalid_event_r,
        	  rdy_fr_init_and_inbound_i,
        	  wait_fr_init_and_inbound_i,
+       	  axi_intf_restart_debug_i,
        	  app_rdy_i,
        	  app_wdf_rdy_i,
        	  stop_fft1d_dbg_i,
@@ -574,6 +575,10 @@ generic (
             	
             	decoder_st_d <= "00010001"; --  Wait for FFT Completion
             	
+                 -----------------------------------------------------------------------------------------
+           		   --  falling event conidtions -- Processing
+           		   -----------------------------------------------------------------------------------------       	
+            	
             		if ( (falling_mvalid_event_r = '1') and -- row write 1d fft
         		       (master_mode_i = "00000")           		   	 
             		 ) then
@@ -583,26 +588,37 @@ generic (
             		  (master_mode_i = "00001")          		   	 
             		 ) then
             	     ns_controller <= state_wr_col;
-            		  
+            	     
+            	   	   
+  	            elsif( (falling_mvalid_event_r = '1') and -- main part of col wr and then col rds for H proc
+            		  (master_mode_i = "00011")         		   	 
+            		 ) then
+            		   ns_controller <= state_H_col; 
+            		   
+    
+                 -----------------------------------------------------------------------------------------
+           		   -- Turnaround conditions -- Continue Processing
+           		   -----------------------------------------------------------------------------------------
+            		
+            		-- TURNAROUND COMPLETEION of 1D FFT  
                 elsif(  (state_counter_4_r >= IMAGE64X64 ) and -- complete 1d fft qnd start of col rd for 2d fft
               	  (master_mode_i = "00000") and (stop_fft1d_dbg_i  = '0')           		   	 
               	 ) then 
-                	 ns_controller <= state_turnaround;
+                	 ns_controller <= state_turnaround;            	 
                 	 
+                	 
+                -- TURNAROUND COMPLETION oF 2D FFT	 
                 elsif(  (state_counter_14_r >= IMAGE64X64 )  and  -- complete 2d fft and start rd of col for H proc
               	  (master_mode_i  = "00001") and (stop_fft2d_dbg_i  = '0')        		   	 
                  ) then 
               	   ns_controller <= state_H; 
-              	   
-  	            elsif( (falling_mvalid_event_r = '1') and -- main part of col wr and then col rds for H proc
-            		  (master_mode_i = "00011")         		   	 
-            		 ) then
-            		   ns_controller <= state_H_col;       	   
+                   	   
 
-                elsif(  (state_counter_14_r >= IMAGE64X64 )  and -- complete H proc
-              	      (master_mode_i = "00011")           		   	 
-                 ) then 
-              	   ns_controller <= state_DEBUG_STOP;
+              	   
+              	   
+              	 -----------------------------------------------------------------------------------------
+           		   -- Check conditions
+           		   -----------------------------------------------------------------------------------------   
               	   
               	elsif(  (state_counter_4_r >= IMAGE64X64 )  and  -- 
               	  (master_mode_i  = "00000")   and (stop_fft1d_dbg_i  = '1')           		   	 
@@ -612,7 +628,12 @@ generic (
               	elsif(  (state_counter_14_r >= IMAGE64X64 )  and  -- 
               	  (master_mode_i  = "00001")   and (stop_fft2d_dbg_i  = '1')           		   	 
                  ) then 
-              	   ns_controller <= state_chk_1dfft_dbg;
+              	   ns_controller <= state_chk_2dfft_dbg;
+              	         	
+                elsif(  (state_counter_14_r >= IMAGE64X64 )  and -- complete H proc
+              	      (master_mode_i = "00011")           		   	 
+                 ) then 
+              	   ns_controller <= state_DEBUG_STOP;
 
             	  else                                     
             		   ns_controller        <= state_wait_for_fft;

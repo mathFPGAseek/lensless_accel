@@ -151,9 +151,9 @@ architecture struct of fista_accel_top is
   signal dummy_input_2                         : std_logic := '1';
   signal dummy_input_3                         : std_logic_vector(0 downto 0) := (others=> '0');
   	
-  signal sram_t1_mem_addr_int_mux_select       : std_logic_vector(15 downto 0);
-  signal sram_t1_mem_wr_en_vec_int_mux_select  : std_logic_vector(0 downto 0);
-  signal sram_t1_mem_en_int_mux_select         : std_logic;
+  --signal sram_t1_mem_addr_int_mux_select       : std_logic_vector(15 downto 0);
+  --signal sram_t1_mem_wr_en_vec_int_mux_select  : std_logic_vector(0 downto 0);
+  --signal sram_t1_mem_en_int_mux_select         : std_logic;
   		                                        
   signal sram_wr_en_vec_int                    : std_logic_vector(0 downto 0);
   signal sram_wr_en_int                        : std_logic;
@@ -161,8 +161,8 @@ architecture struct of fista_accel_top is
   signal sram_addr_int                         : std_logic_vector(15 downto 0);
   signal data_fr_mem_intf_to_sys               : std_logic_vector(79 downto 0);
   signal valid_fr_mem_intf_to_sys              : std_logic;
-  signal data_fr_mem_intf_to_gen_proc          : std_logic_vector(79 downto 0);
-  signal valid_fr_mem_intf_to_gen_proc         : std_logic;
+  --signal data_fr_mem_intf_to_gen_proc          : std_logic_vector(79 downto 0);
+  --signal valid_fr_mem_intf_to_gen_proc         : std_logic;
   signal data_fr_big_h_mem_to_gen_proc         : std_logic_vector(79 downto 0);
   signal valid_fr_big_h_mem_to_gen_proc        : std_logic;
   
@@ -265,6 +265,141 @@ architecture struct of fista_accel_top is
   attribute keep_hierarchy of u4 : label is "yes";
   attribute dont_touch     of u4 : label is "yes";
   
+  -- Test Signals: p00a, p00b, p01
+  signal enable_test_sram_t1_mem_en_int_mux_select        : std_logic;
+  signal enable_test_sram_t1_mem_wr_en_vec_int_mux_select : std_logic_vector(0 downto 0);
+  signal sram_t1_mem_en_int_mux_select                    : std_logic;
+  signal sram_t1_mem_wr_en_vec_int_mux_select             : std_logic_vector(0 downto 0); 
+  signal sram_t1_mem_en_int_mux_select_r                  : std_logic;
+  signal sram_t1_mem_wr_en_vec_int_mux_select_r           : std_logic_vector(0 downto 0); 
+  	
+  	
+  -- Support for PS bus and debugging
+  
+  
+  -- Mux select data out to axi
+  --in
+  signal data_fr_mem_2_intf_to_gen_proc                   : std_logic_vector(79 downto 0);
+  	
+  -- Mux select data out to reg from  mem1 and mem(fft2d) : p02
+  --select
+  
+  
+  -- in
+  signal data_fr_test_mem_intf_to_gen_proc                : std_logic_vector(79 downto 0);
+  signal data_fr_mem_intf_to_gen_proc                     : std_logic_vector(79 downto 0);
+  --
+  -- out
+  signal data_fr_mem_1                                    : std_logic_vector(79 downto 0);
+  	
+  -- register data and valids after mux selection from mem1 and mem(fft2d) : p02a
+  -- in
+  -- data_fr_mem_1 ,valid_fr_mem_1
+  -- out
+  -- data_fr_mem_1_r ,valid_fr_mem_1_r
+  	
+  	
+  -- Mux select valid out to reg from mem1 and mem(fft2d) : p03
+  -- select 
+  -- stop_fft2d_dbg_int or valid_fr_test_mem_intf_to_gen_proc
+  -- or valid_fr_mem_intf_to_gen_proc
+  --
+  -- in 
+  signal valid_fr_mem_intf_to_gen_proc                    : std_logic;
+  signal valid_fr_test_mem_intf_to_gen_proc               : std_logic;
+  --
+  -- out
+  signal valid_fr_mem_1                                   : std_logic;
+  
+  
+  
+  -- Mux select data out to gen proc :p04
+  -- select
+  -- data_fr_mem_1_r or master_mode_int
+  --
+  -- in
+  signal data_fr_mem_1_r                                  : std_logic_vector(79 downto 0);
+  --
+  -- out	
+  signal data_fr_mem_intf_to_gen_proc_after_mux           : std_logic_vector(79 downto 0);
+  	
+  
+  -- Mux select  valid out to gen proc : p05
+  -- select
+  -- valid_fr_mem_1_r or master_mode_int
+  --
+  -- in
+  signal valid_fr_mem_1_r                                 : std_logic;
+  --
+  -- out
+  signal valid_fr_mem_intf_to_gen_proc_after_mux          : std_logic;
+  
+  -- reg for sram t1 addr into memory 1 : p06
+  --
+  -- in //???? start here 
+  signal sram_t1_mem_addr_int_mux_select                  : std_logic_vector( 15 downto 0);
+  --
+  -- out 
+  signal sram_t1_mem_addr_int_mux_select_r                : std_logic_vector( 15 downto 0);
+  
+  -- Mux select what memory addr to PS FIFO : p07
+  --
+  -- select is master_mode_int
+  --
+  -- in sram_t1_mem_addr_int_mux_select_r
+  -- is sram_t1_mem_addr_int_mux_select_r
+  --
+  -- out
+  signal  sram_mem_addr_for_fifo                          : std_logic_vector( 15 downto 0);
+  	
+  -- reg for sram t1 addr into memory 1 : p08
+  --
+  -- in IS sram_mem_addr_for_fifo
+  --
+  -- out 
+  signal sram_mem_addr_for_fifo_r                         : std_logic_vector( 15 downto 0);	
+  	
+  -- fifo for PS addr : p09
+  -- signals  ARE : { sram_mem_addr_for_fifo_r,
+  -- valid_fr_mem_intf_to_gen_proc_after_mux
+  signal rd_en_fr_ps_controller                           : std_logic;
+  signal addr_to_mem_1_and_2_fr_fifo                      : std_logic_vector( 15 downto 0);
+  signal fifo_full                                        : std_logic;
+  
+  -- PS state machine : p10
+  signal rd_addr_fr_ps_controller                         : std_logic_vector( 7 downto 0);
+  
+  -- Mux to buffer select PS control or Mem controller : p11
+  -- signals specified in other locations
+  -- select IS master_mode_int
+  --in
+  signal  dbg_mem_shared_in_enb_fr_mem_cont_int           : std_logic;
+  signal 	dbg_mem_shared_in_addb_fr_mem_cont_int          : std_logic_vector( 7 downto 0);
+  
+  -- Mux into transpose memory #2 for addr : p12
+  -- signals specified in other locations	
+  -- out
+  signal  sram_t2_mem_addr_int_mux_select                 : std_logic_vector( 15 downto 0);
+  
+  -- Mux into transpose memory #2 for ctrl : p13
+  -- select  IS mem_2_ctrl_mux_control_int
+  -- in specified in other locations except for. 
+  signal sram_en_fr_ps_int                                : std_logic;
+  signal sram_wr_en_vec_fr_ps_int                         : std_logic_vector( 0 downto 0);
+  -- out specified in other locaions
+  signal sram_t2_mem_en_int_mux_select                    : std_logic;
+  signal sram_t2_mem_wr_en_vec_int_mux_select             : std_logic_vector( 0 downto 0);
+  
+  -- Mux into mem #2 Transpose
+  -- select and in specified in other locaions
+  --out
+  signal data_to_mem_2_intf_fr_mem_in_buffer_after_debug_mux : std_logic_vector( 79 downto 0);
+  	
+  -- Mem transpose 2 :
+  signal valid_fr_mem_2_intf_to_gen_proc                  : std_logic;
+  signal dbg_qualify_state_verify_mem_2_rd                : std_logic_vector( 2 downto 0); 
+ 
+  
 begin
   
    
@@ -321,8 +456,8 @@ begin
         --mem_shared_in_ch_state_i                    => dual_port_wr_int(0),
         mem_shared_in_ch_state_i                    => event_to_mem,                                         
                                          
-        mem_shared_in_enb_o                         => dbg_mem_shared_in_enb_int, --: out std_logic;
-        mem_shared_in_addb_o                        => dbg_mem_shared_in_addb_int, --: out std_logic_vector(7 downto 0);
+        mem_shared_in_enb_o                         => dbg_mem_shared_in_enb_fr_mem_cont_int, --: out std_logic;
+        mem_shared_in_addb_o                        => dbg_mem_shared_in_addb_fr_mem_cont_int, --: out std_logic_vector(7 downto 0);
                                                   
         -- mux control to front and Backend modules  
         front_end_demux_fr_fista_o                  => dbg_front_end_demux_fr_fista_o, --: out std_logic;
@@ -565,10 +700,10 @@ begin
     --?? Need to add a mux for data bus 
     
     -----------------------------------------
-  -- Mux Data In
+  -- Mux Data In  Memory #1
   -----------------------------------------	
   
-  mux_data_in_from_axi_intf : process(    axi_intf_command_debug_i,
+  mux_data_in_from_axi_intf_mem_1 : process(    axi_intf_command_debug_i,
     	                                    axi_intf_data_in_i,
     	                                    data_to_mem_intf_fr_mem_in_buffer)
     
@@ -593,7 +728,7 @@ begin
     			data_to_mem_intf_fr_mem_in_buffer_after_debug_mux			 <= (others => '0');
     			
       end case;
-    end process mux_data_in_from_axi_intf;
+    end process mux_data_in_from_axi_intf_mem_1;
    
     
     -----------------------------------------
@@ -641,12 +776,12 @@ begin
     	case mem_1_ctrl_mux_control_int is
     	
     		when "00" => -- From Mem Controller
-    			sram_t1_mem_en_int_mux_select 			 <= sram_en_int;
+    			sram_t1_mem_en_int_mux_select 			 <= sram_en_int;        --Note: For Fwd 1-d 2-d fft
     			sram_t1_mem_wr_en_vec_int_mux_select <= sram_wr_en_vec_int;
     			
     		when "01" => -- From Perp Controller
-    			sram_t1_mem_en_int_mux_select 			 <= sram_en_int;
-    			sram_t1_mem_wr_en_vec_int_mux_select <= sram_wr_en_vec_int;  		
+    			sram_t1_mem_en_int_mux_select 			 <= '0';       
+    			sram_t1_mem_wr_en_vec_int_mux_select <= (others => '0');  		
     		
     		when "10" => -- debug mode
     			sram_t1_mem_en_int_mux_select        <= axi_intf_sram_t1_mem_en_int_debug_i;
@@ -668,14 +803,14 @@ begin
     
      
     -----------------------------------------
-    -- Transpose mem_intf
+    -- Transpose mem_intf Memory #1
     -----------------------------------------	
   sram_wr_en_vec_int(0) <= sram_wr_en_int;
 
   	  	
   u6 : entity work.mem_transpose_module
   GENERIC MAP(
-	    	debug_capture_file_i => ZERO_INTEGER,           -- capture file
+	    	debug_capture_file_i => ONE_INTEGER,           -- capture file
 	      debug_state_i  =>  ZERO_INTEGER,               -- no writeback to transpose memory
 	      g_USE_DEBUG_MODE_i => g_USE_DEBUG_MODE_i       -- debug state
 	) 
@@ -693,12 +828,66 @@ begin
   dbg_qualify_state_i => dbg_qualify_state_verify_rd(0)
   );
   
+    -----------------------------------------
+    -- Test Transpose mem_intf with 1D FFT image
+    -----------------------------------------.
+  sram_wr_en_vec_int(0) <= sram_wr_en_int;
+
+  u6_test_1dfft_p01 : entity work.mem1_test_module_fwd_fft2d_src_image
+  GENERIC MAP(
+	    	debug_capture_file_i => ONE_INTEGER,           -- capture file
+	      debug_state_i  =>  ZERO_INTEGER,               -- no writeback to transpose memory
+	      g_USE_DEBUG_MODE_i => g_USE_DEBUG_MODE_i       -- debug state
+	) 
+ 
+  PORT MAP ( 
+  clk_i => clk_i,
+  rst_i => rst_i,                                        --clka : in STD_LOGIC;
+  master_mode_i =>   master_mode_int,                    --: in std_logic_vector(4 downto 0);
+  ena   => enable_test_sram_t1_mem_en_int_mux_select,                       --ena : in STD_LOGIC;
+  wea   => enable_test_sram_t1_mem_wr_en_vec_int_mux_select,                --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+  addra => sram_t1_mem_addr_int_mux_select,                     --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
+  dina  => (others => '0'),            --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
+  douta => data_fr_test_mem_intf_to_gen_proc,                 --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
+  vouta => valid_fr_test_mem_intf_to_gen_proc,
+  dbg_qualify_state_i => dbg_qualify_state_verify_rd(0)
+  );
+  
+  -----------------------------------------
+  -- Muxes to Test Transpose mem_intf with 1D FFT image
+  -----------------------------------------	
+  mux_data_to_test_transpose_mem_1d_fft_image_p00b : process(    master_mode_int,
+    	                                   sram_t1_mem_en_int_mux_select_r,
+    	                                   sram_t1_mem_wr_en_vec_int_mux_select_r)
+    
+    begin 
+    	
+    	case master_mode_int is
+    		
+    		when "00000" => -- 1d fft
+    			enable_test_sram_t1_mem_en_int_mux_select 	<= '0';
+    			enable_test_sram_t1_mem_wr_en_vec_int_mux_select <= (others => '0');
+    	
+    		when "00001" => -- 2d fft
+    			enable_test_sram_t1_mem_en_int_mux_select 	<= sram_t1_mem_en_int_mux_select_r;
+    			enable_test_sram_t1_mem_wr_en_vec_int_mux_select <= sram_t1_mem_wr_en_vec_int_mux_select_r; 
+    		
+    		when others =>
+    			enable_test_sram_t1_mem_en_int_mux_select	<= '0';
+    			enable_test_sram_t1_mem_wr_en_vec_int_mux_select  <= (others => '0');
+    			
+      end case;
+    end process mux_data_to_test_transpose_mem_1d_fft_image_p00b;
+  
+  
+  
   -----------------------------------------
   -- Mux Data Out
   -----------------------------------------	
   
   mux_data_out_to_axi_intf : process(    master_mode_int,
-    	                                   data_fr_mem_intf_to_gen_proc)
+    	                                   data_fr_mem_intf_to_gen_proc,
+    	                                   data_fr_mem_2_intf_to_gen_proc)
     
     begin 
     	
@@ -707,8 +896,8 @@ begin
     		when "00000" => -- 1d fft
     			axi_intf_data_out_o 			 <= data_fr_mem_intf_to_gen_proc;
     			
-    		when "00001" => -- 1d fft
-    		  axi_intf_data_out_o			 <= (others => '0');		
+    		when "00001" => -- 2d fft
+    		  axi_intf_data_out_o			 <= data_fr_mem_2_intf_to_gen_proc;		
     		
     		-- DEBUGGER THEORY of OPERATION: 
     		--when "11110" => -- debug mode THere is not a debug MASTER MODE , correct???
@@ -723,7 +912,350 @@ begin
       end case;
     end process mux_data_out_to_axi_intf;
                                
+    -----------------------------------------
+    -- Select Perp Signals Addr & Control to Test Mem 1
+    -----------------------------------------.
+    
+    mux_perp_signals_to_test_mem_1_p00a : process( clk_i,rst_i)
+    	
+    	begin
+    		if ( rst_i = '1') then
+    			sram_t1_mem_en_int_mux_select_r         <= '0';
+    			sram_t1_mem_wr_en_vec_int_mux_select_r  <= (others => '0');
+    			--sram_t1_mem_addr_int_mux_select_r       <= '0';
+    			
+    			
+    		elsif(clk_i'event and clk_i = '1') then
+    			
+    			sram_t1_mem_en_int_mux_select_r         <= sram_t1_mem_en_int_mux_select;
+    			sram_t1_mem_wr_en_vec_int_mux_select_r  <= sram_t1_mem_wr_en_vec_int_mux_select;
+    			--sram_t1_mem_addr_int_mux_select_r       <= sram_t1_mem_addr_int_mux_select;
+    			
+        end if;
+     end process mux_perp_signals_to_test_mem_1_p00a;
+     
+    -----------------------------------------
+    -- Select Data and valid from Test Mem 1 or Main Mem 1
+    -----------------------------------------.
+    
+    mux_data_signals_fr_test_mem_1_p02 : process(stop_fft2d_dbg_int,
+    	                                           data_fr_test_mem_intf_to_gen_proc,
+    																						 data_fr_mem_intf_to_gen_proc
+    																						 )
+    	begin
+    		
+    		case stop_fft2d_dbg_int is
+    			
+    			when '0' =>
+    				
+    				data_fr_mem_1 <= data_fr_mem_intf_to_gen_proc;
+    				
+    			when '1' =>
+    				
+    				data_fr_mem_1 <= data_fr_test_mem_intf_to_gen_proc;
+    				
+    			when others =>
+    				
+    				data_fr_mem_1 <= (others => '0');
+    					
+    		end case;
+    end process mux_data_signals_fr_test_mem_1_p02;
+    
+    
+    
+    
+    mux_valid_signals_fr_test_mem_1_p03 : process(stop_fft2d_dbg_int,
+    	                                           valid_fr_test_mem_intf_to_gen_proc,
+    																						 valid_fr_mem_intf_to_gen_proc
+    																						 )
+    	begin
+    		
+    		case stop_fft2d_dbg_int is
+    			
+    			when '0' =>
+    				
+    				valid_fr_mem_1 <= valid_fr_mem_intf_to_gen_proc;
+    				
+    			when '1' =>
+    				
+    				valid_fr_mem_1 <= valid_fr_test_mem_intf_to_gen_proc;
+    				
+    			when others =>
+    				
+    				valid_fr_mem_1 <= '0';
+    					
+    		end case;
+    end process mux_valid_signals_fr_test_mem_1_p03;
+    
+    reg_data_and_valid_fr_mem_1_p02a : process(clk_i,rst_i)
+    	
+    	begin
+    		
+    		if(rst_i = '1') then
+    			
+    			data_fr_mem_1_r    <= (others => '0');
+    			valid_fr_mem_1_r   <= '0';
+    			
+    		elsif(clk_i'event and clk_i = '1') then
+    			data_fr_mem_1_r    <= data_fr_mem_1;
+    			valid_fr_mem_1_r   <= valid_fr_mem_1;
+    			
+    		end if;
+    end process reg_data_and_valid_fr_mem_1_p02a;
+    			
+    			
+    
+    -----------------------------------------
+    -- Select Data and valid from Mem 1 or Mem 2
+    -----------------------------------------.
+    
+    mux_data_signals_fr_mem_1_or_mem_2_p04 : process(master_mode_int,
+    	                                               data_fr_mem_1_r
+    	                                               )
+    	
+    	begin
+    		
+    		case master_mode_int is
+    			
+    			when "00000" => -- 1d fft
+    				
+    				data_fr_mem_intf_to_gen_proc_after_mux <= data_fr_mem_1_r;
+    				
+    			when "00001" => -- 2d fft
+    				
+    				data_fr_mem_intf_to_gen_proc_after_mux <= data_fr_mem_1_r; -- Note: 2d FFT state 
+    				                                                           -- also selects mem 1 as
+    				                                                           -- data is being written into
+    				                                                           -- mem 2
+    			when others =>
+    				
+    					data_fr_mem_intf_to_gen_proc_after_mux <= (others => '0');
+    						
+    		end case;
+    			
+    end process mux_data_signals_fr_mem_1_or_mem_2_p04;
+    
+    
+    mux_valid_signals_fr_mem_1_or_mem_2_p05 : process(master_mode_int, 
+    	                                                valid_fr_mem_1_r)
+    	
+    	begin
+    		
+    		case master_mode_int is
+    			
+    			when "00000" => -- 1d fft
+    				
+    				valid_fr_mem_intf_to_gen_proc_after_mux <= valid_fr_mem_1_r;
+    				
+    			when "00001" => -- 2d fft
+    				
+    				valid_fr_mem_intf_to_gen_proc_after_mux <= valid_fr_mem_1_r; -- Note: 2d FFT state 
+    				                                                             -- also selects mem 1 as
+    				                                                             -- data is being written into
+    				                                                             -- mem 2
+    			when others =>
+    				
+    					valid_fr_mem_intf_to_gen_proc_after_mux <= '0';
+    						
+    		end case;
+    			
+    end process mux_valid_signals_fr_mem_1_or_mem_2_p05;
+    
+    -----------------------------------------
+    -- PS FIFO Addr selection
+    -----------------------------------------.
+    reg_ps_fifo_addr_p06 : process(clk_i,rst_i)
+    	begin
+    		if(rst_i = '1') then
+    			sram_t1_mem_addr_int_mux_select_r <= ( others=> '0');
+    				
+    		elsif( clk_i'event and clk_i = '1') then
+    			sram_t1_mem_addr_int_mux_select_r <= sram_t1_mem_addr_int_mux_select;
+    			
+    		end if;
+    			
+    end process reg_ps_fifo_addr_p06;
+    
+    mux_ps_fifo_addr_p07 : process(master_mode_int,
+    	                             sram_t1_mem_addr_int_mux_select_r)
+    	begin
+    		
+    		case master_mode_int is
+    			
+    			when "00000" =>  -- 1d fft
+    				sram_mem_addr_for_fifo <= sram_t1_mem_addr_int_mux_select_r;
+    				
+    			when "00001" => -- 2d fft
+    				sram_mem_addr_for_fifo <= sram_t1_mem_addr_int_mux_select_r;
+    				
+    			when others =>
+    				sram_mem_addr_for_fifo <= ( others => '0');
+    					
+    		end case;
+    end process mux_ps_fifo_addr_p07;
+    
+    reg_srame_mem_addr_for_fifo_p08 : process(clk_i,rst_i)
+    	begin
+    		if( rst_i = '1') then
+    			sram_mem_addr_for_fifo_r <= (others => '0');
+    				
+    		elsif(clk_i'event and clk_i = '1')then
+    			sram_mem_addr_for_fifo_r <= sram_mem_addr_for_fifo;
+    			
+    		end if;
+    			
+    end process reg_srame_mem_addr_for_fifo_p08;
+    			
+    
+    
+   
+    
+  -----------------------------------------
+  -- Mux Data In  Memory #2
+  -----------------------------------------	
+  
+  mux_data_in_from_axi_intf_mem_2_p14 : process(    axi_intf_command_debug_i,
+    	                                    axi_intf_data_in_i,
+    	                                    data_to_mem_intf_fr_mem_in_buffer)
+    
+    begin 
+    	
+    	case axi_intf_command_debug_i is
+    	
+    		when '0' => -- Normal Data FLow
+    			data_to_mem_2_intf_fr_mem_in_buffer_after_debug_mux 		<= data_to_mem_intf_fr_mem_in_buffer;
+    			
+    		when '1' => -- Debug Data In
+    		  data_to_mem_2_intf_fr_mem_in_buffer_after_debug_mux			 <= axi_intf_data_in_i;		
+    		
+    		-- DEBUGGER THEORY of OPERATION: 
+    		--when "11110" => -- debug mode THere is not a debug MASTER MODE , correct???
+    		-- Master Mode just tells us where we are at in process; Then the debugger
+    		-- will halt processing as we interrogate memory and then restart, that is the idea
+    		-- behind debugging
+           
+    		
+    		when others =>
+    			data_to_mem_2_intf_fr_mem_in_buffer_after_debug_mux			 <= (others => '0');
+    			
+      end case;
+    end process mux_data_in_from_axi_intf_mem_2_p14;
+   
+    
+    -----------------------------------------
+    -- Muxes into Tranpose Memory #2
+    -----------------------------------------
+    mux_to_addr_trans_mem_2_p12 : process(--master_mode_int,
+    	                                mem_2_addr_mux_control_int,
+    	                                sram_addr_int,
+    	                                addr_to_mem_1_and_2_fr_fifo,
+    	                                axi_intf_sram_addr_int_debug_i)
+    
+    begin 
+    	
+    	case mem_2_addr_mux_control_int is
+    	
+    		when "00" => -- From Mem Controller
+    			sram_t2_mem_addr_int_mux_select <= sram_addr_int;
+    		
+    		when "01" => -- From PS Controller ;
+    			sram_t2_mem_addr_int_mux_select <= addr_to_mem_1_and_2_fr_fifo;
+    		
+    		when "10" => -- debug mode
+    			sram_t2_mem_addr_int_mux_select <= axi_intf_sram_addr_int_debug_i;
+    			
+    		when "11" => -- null mode
+    			sram_t2_mem_addr_int_mux_select <= (others => '0');
+    		
+    		
+    		when others =>
+    			sram_t2_mem_addr_int_mux_select <= (others=> '0');
+    			
+      end case;
+    end process mux_to_addr_trans_mem_2_p12;
+    
+    sram_en_fr_ps_int             <= rd_en_fr_ps_controller;
+    sram_wr_en_vec_fr_ps_int(0)   <= rd_en_fr_ps_controller;
+    
+    
+    mux_to_control_trans_mem_2_p13 : process(--master_mode_int,
+    	                                   mem_2_ctrl_mux_control_int,
+    	                                   sram_en_int,
+    	                                   sram_wr_en_vec_int,
+    	                                   sram_en_fr_ps_int,
+    	                                   sram_wr_en_vec_fr_ps_int,
+    	                                   axi_intf_sram_t1_mem_en_int_debug_i,
+    	                                   axi_intf_sram_t1_mem_wr_en_vec_int_debug_i)
+    
+    begin 
+    	
+    	case mem_2_ctrl_mux_control_int is
+    	
+    		when "00" => -- From Mem Controller
+    			sram_t2_mem_en_int_mux_select 			 <= sram_en_int;
+    			sram_t2_mem_wr_en_vec_int_mux_select <= sram_wr_en_vec_int;
+    			
+    		when "01" => -- From Perp Controller
+    			sram_t2_mem_en_int_mux_select 			 <= sram_en_fr_ps_int;
+    			sram_t2_mem_wr_en_vec_int_mux_select <= sram_wr_en_vec_fr_ps_int;  		
+    		
+    		when "10" => -- debug mode
+    			sram_t2_mem_en_int_mux_select        <= axi_intf_sram_t1_mem_en_int_debug_i;
+    		  sram_t2_mem_wr_en_vec_int_mux_select <= axi_intf_sram_t1_mem_wr_en_vec_int_debug_i;
+    		  
+    		when "11" => -- null mode
+    			sram_t2_mem_en_int_mux_select        <= '0';
+    		  sram_t2_mem_wr_en_vec_int_mux_select <= (others => '0');
+    		
+    		when others =>
+    			sram_t2_mem_en_int_mux_select <= '0';
+    			sram_t2_mem_wr_en_vec_int_mux_select <= (others=> '0');
+    			
+      end case;
+    end process mux_to_control_trans_mem_2_p13;
+    		
+    		
+    		
+    
+     
+    -----------------------------------------
+    -- Transpose mem_intf Memory #2
+    -----------------------------------------	
+  sram_wr_en_vec_int(0) <= sram_wr_en_int;
 
+  	  	
+  u6_p15 : entity work.mem2_transpose_module_64_by_64
+  GENERIC MAP(
+	    	debug_capture_file_i => ONE_INTEGER,           -- capture file
+	      debug_state_i  =>  ZERO_INTEGER,               -- no writeback to transpose memory
+	      g_USE_DEBUG_MODE_i => g_USE_DEBUG_MODE_i       -- debug state
+	) 
+ 
+  PORT MAP ( 
+  clk_i => clk_i,
+  rst_i => rst_i,                                        --clka : in STD_LOGIC;
+  master_mode_i =>   master_mode_int,                    --: in std_logic_vector(4 downto 0);
+  ena   => sram_t2_mem_en_int_mux_select,                       --ena : in STD_LOGIC;
+  wea   => sram_t2_mem_wr_en_vec_int_mux_select,                --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+  addra => sram_t2_mem_addr_int_mux_select,                     --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
+  dina  => data_to_mem_2_intf_fr_mem_in_buffer_after_debug_mux,            --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
+  douta => data_fr_mem_2_intf_to_gen_proc,                 --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
+  vouta => valid_fr_mem_2_intf_to_gen_proc,
+  dbg_qualify_state_i => dbg_qualify_state_verify_mem_2_rd(0)
+  );
+ 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    				
     
     -----------------------------------------
     -- general procesor engine  (back_end)
@@ -742,8 +1274,8 @@ begin
     master_mode_i                  	=>      (master_mode_int),--: in std_logic_vector(6 downto 0); -- Bits 5 & 6 describe engine mode
   	                             
       --inputs                      
-    from_trans_mem_valid_i          =>       valid_fr_mem_intf_to_gen_proc, --: in std_logic;
-    from_trans_mem_data_i           =>       data_fr_mem_intf_to_gen_proc, --: in std_logic_vector(79 downto 0); 
+    from_trans_mem_valid_i          =>       valid_fr_mem_intf_to_gen_proc_after_mux, --: in std_logic;
+    from_trans_mem_data_i           =>       data_fr_mem_intf_to_gen_proc_after_mux, --: in std_logic_vector(79 downto 0); 
     
     -- Took out big H memory because Takes 144 RAMS /350 in device                              
     --from_h_mem_valid_i              =>       valid_fr_big_h_mem_to_gen_proc, --: in std_logic;
@@ -778,9 +1310,81 @@ begin
     gen_proc_vk_mem_rdy_o           =>       open --: out std_logic
                                    
     );
+    
+ 
+   -----------------------------------------
+    -- FIFO Address for PS Bus
+    ---------------------------------------- 
+                              --Note:
+                              -- That signal : <valid_fr_mem_intf_to_gen_proc_after_mux>
+                              -- comes from memory and registers and
+                              -- does NOT come from gen proc.
+                              -- The signal follows addresses from memory and
+                              -- will be used to store addrs. in a FIFO
+                              -- for use to ping-pong memory line.
+u8_p09 : entity  work.fifo_256_module
+  PORT  MAP(
+    clk 											=>  clk_i, --: IN STD_LOGIC;
+    srst 			                =>  rst_i, --: IN STD_LOGIC;
+    din                       =>  sram_mem_addr_for_fifo_r, --: IN STD_LOGIC_VECTOR(79 DOWNTO 0);
+    wr_en                     =>  valid_fr_mem_intf_to_gen_proc_after_mux, --: IN STD_LOGIC;
+    rd_en                     =>  rd_en_fr_ps_controller, --: IN STD_LOGIC;
+    dout                      =>  addr_to_mem_1_and_2_fr_fifo, --: OUT STD_LOGIC_VECTOR(79 DOWNTO 0);
+    full                      =>  fifo_full, --: OUT STD_LOGIC;
+    empty                     =>  OPEN, --: OUT STD_LOGIC;
+    wr_rst_busy               =>  OPEN,--: OUT STD_LOGIC;
+    rd_rst_busy               =>  OPEN --: OUT STD_LOGIC
+  );
 
-  
-  
+
+u9_p10 : entity work.ps_state_machine_controller_64_by_64
+    GENERIC MAP(
+	    --g_USE_DEBUG_i  =>  ONE) -- 0 = no debug , 1 = debug.
+	      g_USE_DEBUG_MODE_i => g_USE_DEBUG_MODE_i
+	         ) -- 0 = no debug , 1 = debug
+           
+    PORT MAP(                                
+    	                                   
+    	  clk_i                  =>  clk_i,--: in std_logic; --clk_i, --: in std_logic;
+        rst_i               	 =>  rst_i,--: in std_logic; --rst_i, --: in std_logic;
+                               
+        master_mode_i          =>  master_mode_int,--: in std_logic_vector(4 downto 0); --master_mode_i, --: in std_logic_vector(4 downto 0);                                                                                        
+        done_i                 =>  event_to_mem,--: in std_logic; --mem_init_start_i ,--: in std_logic;
+                               
+        fifo_full_i            =>  fifo_full,--  : in std_logic;
+                               
+        addr_o                 =>  rd_addr_fr_ps_controller,--: out std_logic_vector( 16 downto 0); --addr_int, --: out std_logic;
+        en_o                   =>  rd_en_fr_ps_controller--: out std_logic --en_int --: out std_logic;
+                                                                    
+    );                              
+ 
+mux_to_buffer_control_and_read_p11 : process(master_mode_int,
+	                                           dbg_mem_shared_in_enb_fr_mem_cont_int,
+	                                           dbg_mem_shared_in_addb_fr_mem_cont_int,
+	                                           rd_en_fr_ps_controller,
+	                                           rd_addr_fr_ps_controller)
+	begin
+		case master_mode_int is
+			
+			when  "00000" => --1d fft
+			
+				dbg_mem_shared_in_enb_int   <= dbg_mem_shared_in_enb_fr_mem_cont_int;
+				dbg_mem_shared_in_addb_int  <= dbg_mem_shared_in_addb_fr_mem_cont_int;
+				    
+			when  "00001" => -- 2d fft
+				
+				dbg_mem_shared_in_enb_int   <= rd_en_fr_ps_controller;
+				dbg_mem_shared_in_addb_int  <= rd_addr_fr_ps_controller;
+				
+				
+			when others =>
+				
+				dbg_mem_shared_in_enb_int   <=  '0';
+				dbg_mem_shared_in_addb_int  <=  (others => '0');
+				
+		end case;
+			
+end process mux_to_buffer_control_and_read_p11;
     -----------------------------------------
     -- Muxes, ena,wea,addr, and data to buffer
     -----------------------------------------	
@@ -831,6 +1435,7 @@ begin
   	 end case;
   end process	mux_select_signals_to_buffer; 
   
+  -- THese are the DONE SIGNALS
   mux_select_event_to_mem : process(master_mode_int,
   	                                dual_port_wr_int,
   	                                done_signal_from_h_h_mult_int  
