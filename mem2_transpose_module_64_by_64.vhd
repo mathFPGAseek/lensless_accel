@@ -154,7 +154,10 @@ signal ena_to_mem_r                 : std_logic;
 signal ena_to_mem_rr                : std_logic;
 signal ena_to_mem_d                 : std_logic;
 
--- debug signal for controlling write to debug memory instantiation
+signal wea_r                        : std_logic_vector( 0 downto 0);
+signal wea_rr                       : std_logic_vector( 0 downto 0);
+
+-- debug signal for controlling write to debug memory instantiation.
 signal write_control_from_generic   : std_logic_vector( 0 downto 0);
 	
 signal enable_file_capture          : std_logic_vector( 0 downto 0);
@@ -324,8 +327,8 @@ begin
   	u1 : entity work.mem2_img 
   	PORT MAP ( 
   	clka  => clk_i,                                      --clka : in STD_LOGIC;
-  	ena   => ena_to_mem_d,                               --ena : in STD_LOGIC;
-  	wea   => wea,                                        --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+  	ena   => ena_to_mem_rr,                               --ena : in STD_LOGIC;
+  	wea   => wea_rr,                                        --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
   	addra => addra(11 downto 0),                                      --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
   	dina  => dina,                                       --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
   	douta => data_out_no_debug_default_r                 --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
@@ -404,6 +407,23 @@ end generate g_use_u2_debug_h_transpose_mem;
  	 	 end if;
  	 	 	
  end process delay_ena_to_mem;
+ 
+ delay_wea_to_mem : process(clk_i, rst_i)
+ 	
+ 	 begin 
+ 	 	
+ 	 	 if (rst_i = '1') then
+ 	 	
+ 	 	 	 wea_r  <= (others => '0');
+ 	 	 	 wea_rr <= (others => '0');
+ 	 	 	
+ 	 	 elsif( clk_i'event and clk_i = '1') then
+ 	 	 	 wea_r  <= wea;
+ 	 	 	 wea_rr <= wea_r;
+ 	 	 	 
+ 	 	 end if;
+ 	 	 	
+ end process delay_wea_to_mem;
  
  ena_to_mem_d <= ena or ena_to_mem_r or ena_to_mem_rr;
 

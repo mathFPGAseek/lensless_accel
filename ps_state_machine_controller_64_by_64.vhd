@@ -99,7 +99,9 @@ signal addr_r         : std_logic_vector ( 7 downto 0 );
 --constant IMAGE64X64MINUSONE : integer := 4095;
 
 constant FIFOSIZE256 : integer := 256;
-constant FIFOSIZE64  : integer := 64;
+-- commented out 11/8/26
+--constant FIFOSIZE64  : integer := 61; -- Make 61 to make effective count 64
+constant FIFOSIZE64  : integer := 60; -- Make 60 to make effective count 64
 constant DELAY8 : integer := 8;
 	
 -- States
