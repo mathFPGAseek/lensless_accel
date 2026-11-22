@@ -280,6 +280,7 @@ architecture struct of fista_accel_top is
   -- Mux select data out to axi
   --in
   signal data_fr_mem_2_intf_to_gen_proc                   : std_logic_vector(79 downto 0);
+  signal data_fr_test_mem_2_intf_to_gen_proc              : std_logic_vector(79 downto 0);
   	
   -- Mux select data out to reg from  mem1 and mem(fft2d) : p02
   --select
@@ -379,13 +380,20 @@ architecture struct of fista_accel_top is
   -- Mux into transpose memory #2 for addr : p12
   -- signals specified in other locations	
   -- out
-  signal  sram_t2_mem_addr_int_mux_select                 : std_logic_vector( 15 downto 0);
+  --signal  sram_t2_mem_addr_int_mux_select                 : std_logic_vector( 15 downto 0);
   
   -- Mux into transpose memory #2 for ctrl : p13
   -- select  IS mem_2_ctrl_mux_control_int
   -- in specified in other locations except for. 
   signal sram_en_fr_ps_int                                : std_logic;
   signal sram_wr_en_vec_fr_ps_int                         : std_logic_vector( 0 downto 0);
+  	
+  	
+  -- input into mem2 test : p17
+  signal enable_test_sram_t2_mem_en_int_mux_select        : std_logic;
+  signal enable_test_sram_t2_mem_wr_en_vec_int_mux_select : std_logic_vector( 0 downto 0);
+  signal sram_t2_mem_addr_int_mux_select                  : std_logic_vector( 15 downto 0);        
+  
   -- out specified in other locaions
   signal sram_t2_mem_en_int_mux_select                    : std_logic;
   signal sram_t2_mem_wr_en_vec_int_mux_select             : std_logic_vector( 0 downto 0);
@@ -397,8 +405,37 @@ architecture struct of fista_accel_top is
   	
   -- Mem transpose 2 :
   signal valid_fr_mem_2_intf_to_gen_proc                  : std_logic;
-  signal dbg_qualify_state_verify_mem_2_rd                : std_logic_vector( 2 downto 0); 
+  signal valid_fr_test_mem_2_intf_to_gen_proc             : std_logic;
+   
+  	
+  -- Mux to test image 2 
+  signal 	sram_t2_mem_en_int_mux_select_r                 : std_logic;
+  signal  sram_t2_mem_wr_en_vec_int_mux_select_r          : std_logic_vector( 0 downto 0);
+  	
+  	
+  -- Mux valid fr test 2 mem or mem 2
+  signal valid_fr_mem_2																	  : std_logic;
+  
+  
+  -- reg valid and data mem 2
+ signal  data_fr_mem_2_r                                  : std_logic_vector(79 downto 0);  
+ signal valid_fr_mem_2_r                                  : std_logic;                           
+  
+ -- mux p 20
+ signal sram_h_mem_en_int_mux_select                      : std_logic;
+ signal sram_h_mem_wr_en_vec_int_mux_select               : std_logic_vector( 0 downto 0);
+ signal sram_h_mem_addr_int_mux_select                    : std_logic_vector( 15 downto 0); 
+ 	
+ -- h mem
+ signal data_fr_mem_h_intf_to_gen_proc                    : std_logic_vector( 79 downto 0);
+ signal valid_fr_mem_h_intf_to_gen_proc                   : std_logic;
  
+ -- reg h mem
+ signal data_fr_mem_h_r                                   : std_logic_vector( 79 downto 0);
+ signal valid_fr_mem_h_r                                  : std_logic;
+ 
+ -- p16
+ signal data_fr_mem_2                                     : std_logic_vector( 79 downto 0);     
   
 begin
   
@@ -825,17 +862,17 @@ begin
   dina  => data_to_mem_intf_fr_mem_in_buffer_after_debug_mux,            --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
   douta => data_fr_mem_intf_to_gen_proc,                 --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
   vouta => valid_fr_mem_intf_to_gen_proc,
-  dbg_qualify_state_i => dbg_qualify_state_verify_rd(0)
-  );
-  
+  dbg_qualify_state_i => dbg_qualify_state_verify_rd(0) -- used with falling event to qualify a 
+  );                                                    -- falling event in memory
+                                                         -- This is app_cmd_o from mem controller
     -----------------------------------------
     -- Test Transpose mem_intf with 1D FFT image
     -----------------------------------------.
-  sram_wr_en_vec_int(0) <= sram_wr_en_int;
+  
 
   u6_test_1dfft_p01 : entity work.mem1_test_module_fwd_fft2d_src_image
   GENERIC MAP(
-	    	debug_capture_file_i => ONE_INTEGER,           -- capture file
+	    	debug_capture_file_i => ZERO_INTEGER,           -- capture file
 	      debug_state_i  =>  ZERO_INTEGER,               -- no writeback to transpose memory
 	      g_USE_DEBUG_MODE_i => g_USE_DEBUG_MODE_i       -- debug state
 	) 
@@ -897,7 +934,10 @@ begin
     			axi_intf_data_out_o 			 <= data_fr_mem_intf_to_gen_proc;
     			
     		when "00001" => -- 2d fft
-    		  axi_intf_data_out_o			 <= data_fr_mem_2_intf_to_gen_proc;		
+    		  axi_intf_data_out_o			   <= data_fr_mem_2_intf_to_gen_proc;
+    		  
+    		when "00011" => -- H proc	
+    			axi_intf_data_out_o        <= data_fr_mem_intf_to_gen_proc;     	
     		
     		-- DEBUGGER THEORY of OPERATION: 
     		--when "11110" => -- debug mode THere is not a debug MASTER MODE , correct???
@@ -933,6 +973,28 @@ begin
     			
         end if;
      end process mux_perp_signals_to_test_mem_1_p00a;
+     
+     -----------------------------------------
+    -- Select Perp Signals Addr & Control to Test Mem 2
+    -----------------------------------------.
+    
+    mux_perp_signals_to_test_mem_2_pt_00a : process( clk_i,rst_i)
+    	
+    	begin
+    		if ( rst_i = '1') then
+    			sram_t2_mem_en_int_mux_select_r         <= '0';
+    			sram_t2_mem_wr_en_vec_int_mux_select_r  <= (others => '0');
+    			--sram_t1_mem_addr_int_mux_select_r       <= '0';
+    			
+    			
+    		elsif(clk_i'event and clk_i = '1') then
+    			
+    			sram_t2_mem_en_int_mux_select_r         <= sram_t2_mem_en_int_mux_select;
+    			sram_t2_mem_wr_en_vec_int_mux_select_r  <= sram_t2_mem_wr_en_vec_int_mux_select;
+    			--sram_t1_mem_addr_int_mux_select_r       <= sram_t1_mem_addr_int_mux_select;
+    			
+        end if;
+     end process mux_perp_signals_to_test_mem_2_pt_00a;
      
     -----------------------------------------
     -- Select Data and valid from Test Mem 1 or Main Mem 1
@@ -1010,7 +1072,8 @@ begin
     -----------------------------------------.
     
     mux_data_signals_fr_mem_1_or_mem_2_p04 : process(master_mode_int,
-    	                                               data_fr_mem_1_r
+    	                                               data_fr_mem_1_r,
+    	                                               data_fr_mem_2_r
     	                                               )
     	
     	begin
@@ -1027,6 +1090,10 @@ begin
     				                                                           -- also selects mem 1 as
     				                                                           -- data is being written into
     				                                                           -- mem 2
+    		  when "00011" => -- H proc
+    		  	
+    		  	data_fr_mem_intf_to_gen_proc_after_mux <= data_fr_mem_2_r;
+    		  	
     			when others =>
     				
     					data_fr_mem_intf_to_gen_proc_after_mux <= (others => '0');
@@ -1037,7 +1104,8 @@ begin
     
     
     mux_valid_signals_fr_mem_1_or_mem_2_p05 : process(master_mode_int, 
-    	                                                valid_fr_mem_1_r)
+    	                                                valid_fr_mem_1_r,
+    	                                                valid_fr_mem_2_r)
     	
     	begin
     		
@@ -1053,6 +1121,10 @@ begin
     				                                                             -- also selects mem 1 as
     				                                                             -- data is being written into
     				                                                             -- mem 2
+    		  when "00011" => -- H proc
+    		  	
+    		  	valid_fr_mem_intf_to_gen_proc_after_mux <= valid_fr_mem_2_r;
+    		  	
     			when others =>
     				
     					valid_fr_mem_intf_to_gen_proc_after_mux <= '0';
@@ -1221,7 +1293,7 @@ begin
     -----------------------------------------
     -- Transpose mem_intf Memory #2
     -----------------------------------------	
-  sram_wr_en_vec_int(0) <= sram_wr_en_int;
+  
 
   	  	
   u6_p15 : entity work.mem2_transpose_module_64_by_64
@@ -1241,17 +1313,200 @@ begin
   dina  => data_to_mem_2_intf_fr_mem_in_buffer_after_debug_mux,            --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
   douta => data_fr_mem_2_intf_to_gen_proc,                 --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
   vouta => valid_fr_mem_2_intf_to_gen_proc,
-  dbg_qualify_state_i => dbg_qualify_state_verify_mem_2_rd(0)
+  dbg_qualify_state_i => '0'  -- THIS IS zero becuase we do not need a falling event for this test mem
   );
+  
+    -----------------------------------------
+    -- Test Transpose mem_intf with H image (a + b*i)
+    -----------------------------------------.
+  enable_test_sram_t2_mem_wr_en_vec_int_mux_select(0) <= sram_wr_en_int;
+
+  u6_test_h_p17 : entity work.mem2_test_module_h_src_image
+  GENERIC MAP(
+	    	debug_capture_file_i => ZERO_INTEGER,           -- capture file
+	      debug_state_i  =>  ZERO_INTEGER,               -- no writeback to transpose memory
+	      g_USE_DEBUG_MODE_i => g_USE_DEBUG_MODE_i       -- debug state
+	) 
+ 
+  PORT MAP ( 
+  clk_i => clk_i,
+  rst_i => rst_i,                                        --clka : in STD_LOGIC;
+  master_mode_i =>   master_mode_int,                    --: in std_logic_vector(4 downto 0);
+  ena   => enable_test_sram_t2_mem_en_int_mux_select,                       --ena : in STD_LOGIC;
+  wea   => enable_test_sram_t2_mem_wr_en_vec_int_mux_select,                --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+  addra => sram_t2_mem_addr_int_mux_select,                     --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
+  dina  => (others => '0'),            --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
+  douta => data_fr_test_mem_2_intf_to_gen_proc,                 --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
+  vouta => valid_fr_test_mem_2_intf_to_gen_proc,
+  dbg_qualify_state_i => '0'  -- THIS IS zero becuase we do not need a falling event for this test mem
+  );
+  
+  -----------------------------------------
+  -- Muxes to Test Transpose mem_intf with h image
+  -----------------------------------------	
+  mux_data_to_test_transpose_mem_2_h_image_pt_00b : process(    master_mode_int,
+    	                                   sram_t2_mem_en_int_mux_select_r,
+    	                                   sram_t2_mem_wr_en_vec_int_mux_select_r)
+    
+    begin 
+    	
+    	case master_mode_int is
+    		
+    		when "00000" => -- 1d fft
+    			enable_test_sram_t2_mem_en_int_mux_select 	<= '0';
+    			enable_test_sram_t2_mem_wr_en_vec_int_mux_select <= (others => '0');
+    	
+    		when "00001" => -- 2d fft
+    			enable_test_sram_t2_mem_en_int_mux_select 	<= sram_t2_mem_en_int_mux_select_r;
+    			enable_test_sram_t2_mem_wr_en_vec_int_mux_select <= sram_t2_mem_wr_en_vec_int_mux_select_r; 
+    		
+    		when others =>
+    			enable_test_sram_t2_mem_en_int_mux_select	<= '0';
+    			enable_test_sram_t2_mem_wr_en_vec_int_mux_select  <= (others => '0');
+    			
+      end case;
+    end process mux_data_to_test_transpose_mem_2_h_image_pt_00b;
  
     
+    -----------------------------------------
+    -- Select Data and valid from Test Mem 2 or Main Mem 2
+    -----------------------------------------.
+    
+    mux_data_signals_fr_test_mem_2_p16 : process(stop_h_dbg_int,
+    	                                           data_fr_test_mem_2_intf_to_gen_proc,
+    																						 data_fr_mem_2_intf_to_gen_proc
+    																						 )
+    	begin
+    		
+    		case stop_h_dbg_int is
+    			
+    			when '0' =>
+    				
+    				data_fr_mem_2 <= data_fr_mem_2_intf_to_gen_proc;
+    				
+    			when '1' =>
+    				
+    				data_fr_mem_2 <= data_fr_test_mem_2_intf_to_gen_proc;
+    				
+    			when others =>
+    				
+    				data_fr_mem_2 <= (others => '0');
+    					
+    		end case;
+    end process mux_data_signals_fr_test_mem_2_p16;
     
     
+    mux_valid_signals_fr_test_mem_2_p17 : process(stop_h_dbg_int,
+    	                                           valid_fr_test_mem_2_intf_to_gen_proc,
+    																						 valid_fr_mem_2_intf_to_gen_proc
+    																						 )
+    	begin
+    		
+    		case stop_h_dbg_int is
+    			
+    			when '0' =>
+    				
+    				valid_fr_mem_2 <= valid_fr_mem_2_intf_to_gen_proc;
+    				
+    			when '1' =>
+    				
+    				valid_fr_mem_2 <= valid_fr_test_mem_2_intf_to_gen_proc;
+    				
+    			when others =>
+    				
+    				valid_fr_mem_2 <= '0';
+    					
+    		end case;
+    end process mux_valid_signals_fr_test_mem_2_p17;    
     
     
+    reg_data_and_valid_fr_mem_2_p16a : process(clk_i,rst_i)
+    	
+    	begin
+    		
+    		if(rst_i = '1') then
+    			
+    			data_fr_mem_2_r    <= (others => '0');
+    			valid_fr_mem_2_r   <= '0';
+    			
+    		elsif(clk_i'event and clk_i = '1') then
+    			data_fr_mem_2_r    <= data_fr_mem_2;
+    			valid_fr_mem_2_r   <= valid_fr_mem_2;
+    			
+    		end if;
+    end process reg_data_and_valid_fr_mem_2_p16a;
+  
+  -----------------------------------------
+  -- H memory
+  -----------------------------------------	
+  
+  mux_addr_and_control_to_mem_h_p20 : process(    master_mode_int,
+    	                                   sram_t1_mem_en_int_mux_select_r,
+    	                                   sram_t1_mem_wr_en_vec_int_mux_select_r,
+    	                                   sram_t1_mem_addr_int_mux_select)
     
+    begin 
+    	
+    	case master_mode_int is
+    		
+    		when "00000" => -- 1d fft
+    			sram_h_mem_en_int_mux_select 	<= '0';
+    			sram_h_mem_wr_en_vec_int_mux_select <= (others => '0');
+    		  sram_h_mem_addr_int_mux_select <= ( others => '0');
+    	
+    		when "00001" => -- 2d fft
+    			sram_h_mem_en_int_mux_select 	<= '0';
+    			sram_h_mem_wr_en_vec_int_mux_select <= (others => '0'); 
+    			sram_h_mem_addr_int_mux_select <= ( others => '0');
+    			
+    	 when "00011" => -- h
+    			sram_h_mem_en_int_mux_select 	<= sram_t1_mem_en_int_mux_select_r;
+    			sram_h_mem_wr_en_vec_int_mux_select <= sram_t1_mem_wr_en_vec_int_mux_select_r;
+    			sram_h_mem_addr_int_mux_select <= sram_t1_mem_addr_int_mux_select;
+    		
+    		when others =>
+    			sram_h_mem_en_int_mux_select	<= '0';
+    			sram_h_mem_wr_en_vec_int_mux_select  <= (others => '0');
+    			sram_h_mem_addr_int_mux_select <= (others=> '0');
+    			
+      end case;
+    end process mux_addr_and_control_to_mem_h_p20;
     
-    
+  u6_p18 : entity work.mem_h_module_64_by_64
+  GENERIC MAP(
+	    	debug_capture_file_i => ZERO_INTEGER,           -- capture file
+	      debug_state_i  =>  ZERO_INTEGER,               -- no writeback to transpose memory
+	      g_USE_DEBUG_MODE_i => g_USE_DEBUG_MODE_i       -- debug state
+	) 
+ 
+  PORT MAP ( 
+  clk_i => clk_i,
+  rst_i => rst_i,                                        --clka : in STD_LOGIC;
+  master_mode_i =>   master_mode_int,                    --: in std_logic_vector(4 downto 0);
+  ena   => sram_h_mem_en_int_mux_select,                       --ena : in STD_LOGIC;
+  wea   => sram_h_mem_wr_en_vec_int_mux_select,                --wea : in STD_LOGIC_VECTOR ( 0 to 0 );
+  addra => sram_h_mem_addr_int_mux_select,                     --addra : in STD_LOGIC_VECTOR ( 15 downto 0 );
+  dina  => (others => '0'),            --dina : in STD_LOGIC_VECTOR ( 79 downto 0 );
+  douta => data_fr_mem_h_intf_to_gen_proc,                 --douta : out STD_LOGIC_VECTOR ( 79 downto 0 )
+  vouta => valid_fr_mem_h_intf_to_gen_proc,
+  dbg_qualify_state_i => '0'  -- THIS IS zero becuase we do not need a falling event for this test mem
+  );
+   
+   reg_data_and_valid_fr_mem_h_p19 : process(clk_i,rst_i)
+    	
+    	begin
+    		
+    		if(rst_i = '1') then
+    			
+    			data_fr_mem_h_r    <= (others => '0');
+    			valid_fr_mem_h_r   <= '0';
+    			
+    		elsif(clk_i'event and clk_i = '1') then
+    			data_fr_mem_h_r    <= data_fr_mem_h_intf_to_gen_proc;
+    			valid_fr_mem_h_r   <= valid_fr_mem_h_intf_to_gen_proc;
+    			
+    		end if;
+    end process reg_data_and_valid_fr_mem_h_p19; 
     
     
     
@@ -1281,8 +1536,8 @@ begin
     --from_h_mem_valid_i              =>       valid_fr_big_h_mem_to_gen_proc, --: in std_logic;
     --from_h_mem_data_i               =>       data_fr_big_h_mem_to_gen_proc, --: in std_logic_vector(79 downto 0);
     
-    from_h_mem_valid_i              =>       '0', --: in std_logic;
-    from_h_mem_data_i               =>       (others => '0'), --: in std_logic_vector(79 downto 0);
+    from_h_mem_valid_i              =>       valid_fr_mem_h_r, --: in std_logic;
+    from_h_mem_data_i               =>       data_fr_mem_h_r, --: in std_logic_vector(79 downto 0);
     	                             
     from_h_star_mem_valid_i         =>       '0', --: in std_logic;
     from_h_star_mem_data_i          =>       (others => '0'), --: in std_logic_vector(79 downto 0);    	

@@ -12,17 +12,18 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="610,904.178 ns"></ZoomStartTime>
-      <ZoomEndTime time="611,734.698 ns"></ZoomEndTime>
-      <Cursor1Time time="611,315.000 ns"></Cursor1Time>
+      <ZoomStartTime time="607,870.100 ns"></ZoomStartTime>
+      <ZoomEndTime time="610,735.101 ns"></ZoomEndTime>
+      <Cursor1Time time="612,285.100 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="326"></NameColumnWidth>
-      <ValueColumnWidth column_width="152"></ValueColumnWidth>
+      <ValueColumnWidth column_width="132"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="308" />
+   <WVObjectSize size="377" />
    <wave_markers>
-      <marker time="611125000" label="" />
+      <marker time="315373600" label="" />
+      <marker time="316025000" label="" />
    </wave_markers>
    <wvobject type="divider" fp_name="divider56">
       <obj_property name="label">U5 Master Module</obj_property>
@@ -727,6 +728,77 @@
       <obj_property name="ElementShortName">enable_read_rr</obj_property>
       <obj_property name="ObjectShortName">enable_read_rr</obj_property>
    </wvobject>
+   <wvobject type="divider" fp_name="divider375">
+      <obj_property name="label">U6_p15 Transpose Memory Module 2</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#FF00FF</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/clk_i" type="logic">
+      <obj_property name="ElementShortName">clk_i</obj_property>
+      <obj_property name="ObjectShortName">clk_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/rst_i" type="logic">
+      <obj_property name="ElementShortName">rst_i</obj_property>
+      <obj_property name="ObjectShortName">rst_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/master_mode_i" type="array">
+      <obj_property name="ElementShortName">master_mode_i[4:0]</obj_property>
+      <obj_property name="ObjectShortName">master_mode_i[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/ena" type="logic">
+      <obj_property name="ElementShortName">ena</obj_property>
+      <obj_property name="ObjectShortName">ena</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/wea" type="array">
+      <obj_property name="ElementShortName">wea[0:0]</obj_property>
+      <obj_property name="ObjectShortName">wea[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/addra" type="array">
+      <obj_property name="ElementShortName">addra[15:0]</obj_property>
+      <obj_property name="ObjectShortName">addra[15:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/dina" type="array">
+      <obj_property name="ElementShortName">dina[79:0]</obj_property>
+      <obj_property name="ObjectShortName">dina[79:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/douta" type="array">
+      <obj_property name="ElementShortName">douta[79:0]</obj_property>
+      <obj_property name="ObjectShortName">douta[79:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/vouta" type="logic">
+      <obj_property name="ElementShortName">vouta</obj_property>
+      <obj_property name="ObjectShortName">vouta</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/dbg_qualify_state_i" type="logic">
+      <obj_property name="ElementShortName">dbg_qualify_state_i</obj_property>
+      <obj_property name="ObjectShortName">dbg_qualify_state_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/u1/clka" type="logic">
+      <obj_property name="ElementShortName">clka</obj_property>
+      <obj_property name="ObjectShortName">clka</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/u1/ena" type="logic">
+      <obj_property name="ElementShortName">ena</obj_property>
+      <obj_property name="ObjectShortName">ena</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/u1/wea" type="array">
+      <obj_property name="ElementShortName">wea[0:0]</obj_property>
+      <obj_property name="ObjectShortName">wea[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/u1/addra" type="array">
+      <obj_property name="ElementShortName">addra[11:0]</obj_property>
+      <obj_property name="ObjectShortName">addra[11:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/u1/dina" type="array">
+      <obj_property name="ElementShortName">dina[79:0]</obj_property>
+      <obj_property name="ObjectShortName">dina[79:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/u1/douta" type="array">
+      <obj_property name="ElementShortName">douta[79:0]</obj_property>
+      <obj_property name="ObjectShortName">douta[79:0]</obj_property>
+   </wvobject>
    <wvobject type="divider" fp_name="divider303">
       <obj_property name="label">Transpose Test Mem for FFT2D</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -1046,7 +1118,6 @@
    <wvobject fp_name="/tb_top/dut/U1/u9_p10/decoder_st_r" type="array">
       <obj_property name="ElementShortName">decoder_st_r[2:0]</obj_property>
       <obj_property name="ObjectShortName">decoder_st_r[2:0]</obj_property>
-      <obj_property name="isExpanded"></obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/dut/U1/u9_p10/done_i" type="logic">
       <obj_property name="ElementShortName">done_i</obj_property>
@@ -1063,7 +1134,6 @@
    <wvobject fp_name="/tb_top/dut/U1/u9_p10/master_mode_i" type="array">
       <obj_property name="ElementShortName">master_mode_i[4:0]</obj_property>
       <obj_property name="ObjectShortName">master_mode_i[4:0]</obj_property>
-      <obj_property name="isExpanded"></obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/dut/U1/u9_p10/ns_controller" type="other">
       <obj_property name="ElementShortName">ns_controller</obj_property>
@@ -1076,6 +1146,38 @@
    <wvobject fp_name="/tb_top/dut/U1/u9_p10/rst_i" type="logic">
       <obj_property name="ElementShortName">rst_i</obj_property>
       <obj_property name="ObjectShortName">rst_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u9_p10/en_d" type="logic">
+      <obj_property name="ElementShortName">en_d</obj_property>
+      <obj_property name="ObjectShortName">en_d</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u9_p10/en_r" type="logic">
+      <obj_property name="ElementShortName">en_r</obj_property>
+      <obj_property name="ObjectShortName">en_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u9_p10/en_rr" type="logic">
+      <obj_property name="ElementShortName">en_rr</obj_property>
+      <obj_property name="ObjectShortName">en_rr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u9_p10/state_counter_1_r" type="other">
+      <obj_property name="ElementShortName">state_counter_1_r</obj_property>
+      <obj_property name="ObjectShortName">state_counter_1_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u9_p10/clear_state_counter_1_d" type="logic">
+      <obj_property name="ElementShortName">clear_state_counter_1_d</obj_property>
+      <obj_property name="ObjectShortName">clear_state_counter_1_d</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u9_p10/clear_state_counter_1_r" type="logic">
+      <obj_property name="ElementShortName">clear_state_counter_1_r</obj_property>
+      <obj_property name="ObjectShortName">clear_state_counter_1_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u9_p10/enable_state_counter_1_d" type="logic">
+      <obj_property name="ElementShortName">enable_state_counter_1_d</obj_property>
+      <obj_property name="ObjectShortName">enable_state_counter_1_d</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u9_p10/enable_state_counter_1_r" type="logic">
+      <obj_property name="ElementShortName">enable_state_counter_1_r</obj_property>
+      <obj_property name="ObjectShortName">enable_state_counter_1_r</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/dut/U1/u9_p10/state_counter_1_r" type="other">
       <obj_property name="ElementShortName">state_counter_1_r</obj_property>
@@ -1307,5 +1409,182 @@
    <wvobject fp_name="/tb_top/dut/U1/u6/clear_state_counter_2_rr" type="logic">
       <obj_property name="ElementShortName">clear_state_counter_2_rr</obj_property>
       <obj_property name="ObjectShortName">clear_state_counter_2_rr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/clk_i" type="logic">
+      <obj_property name="ElementShortName">clk_i</obj_property>
+      <obj_property name="ObjectShortName">clk_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/rst_i" type="logic">
+      <obj_property name="ElementShortName">rst_i</obj_property>
+      <obj_property name="ObjectShortName">rst_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/master_mode_i" type="array">
+      <obj_property name="ElementShortName">master_mode_i[4:0]</obj_property>
+      <obj_property name="ObjectShortName">master_mode_i[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/ena" type="logic">
+      <obj_property name="ElementShortName">ena</obj_property>
+      <obj_property name="ObjectShortName">ena</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/wea" type="array">
+      <obj_property name="ElementShortName">wea[0:0]</obj_property>
+      <obj_property name="ObjectShortName">wea[0:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/addra" type="array">
+      <obj_property name="ElementShortName">addra[15:0]</obj_property>
+      <obj_property name="ObjectShortName">addra[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/dina" type="array">
+      <obj_property name="ElementShortName">dina[79:0]</obj_property>
+      <obj_property name="ObjectShortName">dina[79:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/douta" type="array">
+      <obj_property name="ElementShortName">douta[79:0]</obj_property>
+      <obj_property name="ObjectShortName">douta[79:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/vouta" type="logic">
+      <obj_property name="ElementShortName">vouta</obj_property>
+      <obj_property name="ObjectShortName">vouta</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u6_p15/dbg_qualify_state_i" type="logic">
+      <obj_property name="ElementShortName">dbg_qualify_state_i</obj_property>
+      <obj_property name="ObjectShortName">dbg_qualify_state_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u9_p10/en_d" type="logic">
+      <obj_property name="ElementShortName">en_d</obj_property>
+      <obj_property name="ObjectShortName">en_d</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u9_p10/en_r" type="logic">
+      <obj_property name="ElementShortName">en_r</obj_property>
+      <obj_property name="ObjectShortName">en_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u9_p10/en_rr" type="logic">
+      <obj_property name="ElementShortName">en_rr</obj_property>
+      <obj_property name="ObjectShortName">en_rr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u9_p10/state_counter_1_r" type="other">
+      <obj_property name="ElementShortName">state_counter_1_r</obj_property>
+      <obj_property name="ObjectShortName">state_counter_1_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u9_p10/clear_state_counter_1_d" type="logic">
+      <obj_property name="ElementShortName">clear_state_counter_1_d</obj_property>
+      <obj_property name="ObjectShortName">clear_state_counter_1_d</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u9_p10/clear_state_counter_1_r" type="logic">
+      <obj_property name="ElementShortName">clear_state_counter_1_r</obj_property>
+      <obj_property name="ObjectShortName">clear_state_counter_1_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u9_p10/enable_state_counter_1_d" type="logic">
+      <obj_property name="ElementShortName">enable_state_counter_1_d</obj_property>
+      <obj_property name="ObjectShortName">enable_state_counter_1_d</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u9_p10/enable_state_counter_1_r" type="logic">
+      <obj_property name="ElementShortName">enable_state_counter_1_r</obj_property>
+      <obj_property name="ObjectShortName">enable_state_counter_1_r</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider414">
+      <obj_property name="label">h h start controller</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#E0FFFF</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/clk_i" type="logic">
+      <obj_property name="ElementShortName">clk_i</obj_property>
+      <obj_property name="ObjectShortName">clk_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/rst_i" type="logic">
+      <obj_property name="ElementShortName">rst_i</obj_property>
+      <obj_property name="ObjectShortName">rst_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/master_mode_i" type="array">
+      <obj_property name="ElementShortName">master_mode_i[4:0]</obj_property>
+      <obj_property name="ObjectShortName">master_mode_i[4:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/valid_i" type="logic">
+      <obj_property name="ElementShortName">valid_i</obj_property>
+      <obj_property name="ObjectShortName">valid_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/start_output_i" type="logic">
+      <obj_property name="ElementShortName">start_output_i</obj_property>
+      <obj_property name="ObjectShortName">start_output_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/s_axis_data_tlast_o" type="logic">
+      <obj_property name="ElementShortName">s_axis_data_tlast_o</obj_property>
+      <obj_property name="ObjectShortName">s_axis_data_tlast_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/buffer_addr_o" type="array">
+      <obj_property name="ElementShortName">buffer_addr_o[7:0]</obj_property>
+      <obj_property name="ObjectShortName">buffer_addr_o[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/h_h_star_done_o" type="logic">
+      <obj_property name="ElementShortName">h_h_star_done_o</obj_property>
+      <obj_property name="ObjectShortName">h_h_star_done_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/decoder_st_d" type="array">
+      <obj_property name="ElementShortName">decoder_st_d[3:0]</obj_property>
+      <obj_property name="ObjectShortName">decoder_st_d[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/decoder_st_r" type="array">
+      <obj_property name="ElementShortName">decoder_st_r[3:0]</obj_property>
+      <obj_property name="ObjectShortName">decoder_st_r[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/s_axis_data_tlast_d" type="logic">
+      <obj_property name="ElementShortName">s_axis_data_tlast_d</obj_property>
+      <obj_property name="ObjectShortName">s_axis_data_tlast_d</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/s_axis_data_tlast_r" type="logic">
+      <obj_property name="ElementShortName">s_axis_data_tlast_r</obj_property>
+      <obj_property name="ObjectShortName">s_axis_data_tlast_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/s_axis_data_tlast_rr" type="logic">
+      <obj_property name="ElementShortName">s_axis_data_tlast_rr</obj_property>
+      <obj_property name="ObjectShortName">s_axis_data_tlast_rr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/s_axis_config_valid_r" type="logic">
+      <obj_property name="ElementShortName">s_axis_config_valid_r</obj_property>
+      <obj_property name="ObjectShortName">s_axis_config_valid_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/s_axis_config_tdata_r" type="array">
+      <obj_property name="ElementShortName">s_axis_config_tdata_r[15:0]</obj_property>
+      <obj_property name="ObjectShortName">s_axis_config_tdata_r[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/s_axis_data_tvalid_r" type="logic">
+      <obj_property name="ElementShortName">s_axis_data_tvalid_r</obj_property>
+      <obj_property name="ObjectShortName">s_axis_data_tvalid_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/state_counter_1_r" type="other">
+      <obj_property name="ElementShortName">state_counter_1_r</obj_property>
+      <obj_property name="ObjectShortName">state_counter_1_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/clear_state_counter_1_d" type="logic">
+      <obj_property name="ElementShortName">clear_state_counter_1_d</obj_property>
+      <obj_property name="ObjectShortName">clear_state_counter_1_d</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/clear_state_counter_1_r" type="logic">
+      <obj_property name="ElementShortName">clear_state_counter_1_r</obj_property>
+      <obj_property name="ObjectShortName">clear_state_counter_1_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/enable_state_counter_1_d" type="logic">
+      <obj_property name="ElementShortName">enable_state_counter_1_d</obj_property>
+      <obj_property name="ObjectShortName">enable_state_counter_1_d</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/enable_state_counter_1_r" type="logic">
+      <obj_property name="ElementShortName">enable_state_counter_1_r</obj_property>
+      <obj_property name="ObjectShortName">enable_state_counter_1_r</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/ns_controller" type="other">
+      <obj_property name="ElementShortName">ns_controller</obj_property>
+      <obj_property name="ObjectShortName">ns_controller</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/ps_controller" type="other">
+      <obj_property name="ElementShortName">ps_controller</obj_property>
+      <obj_property name="ObjectShortName">ps_controller</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/g_USE_DEBUG_MODE_i" type="other">
+      <obj_property name="ElementShortName">g_USE_DEBUG_MODE_i</obj_property>
+      <obj_property name="ObjectShortName">g_USE_DEBUG_MODE_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/dut/U1/u7/U2/U0/FFTSIZE256" type="other">
+      <obj_property name="ElementShortName">FFTSIZE256</obj_property>
+      <obj_property name="ObjectShortName">FFTSIZE256</obj_property>
    </wvobject>
 </wave_config>
