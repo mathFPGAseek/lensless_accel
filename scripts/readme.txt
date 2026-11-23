@@ -386,7 +386,90 @@ Step #10.
      Launch Implementation ( from radial button or prompt after synthesis)
 
 
+#------------------------------------------------------------------------------
+# Sythesis 64x64 image with H memory
+#------------------------------------------------------------------------------
+
+Step #1.
+# Create a root path;
+# Example:
+C:\design\<your_root_name>
+
+Step #2.
+# At your root create the following structure
+/build
+/coe
+/constraints
+/rtl_sim_wo_axi
+/script
+/waveforms
+/verification
+
+Step #3.
+
+#Copy from git the following files from script
+     build_syn_64_by_64_mem_img_project.tcl
+     create_syn_64_by_64_mem_img_ip.tcl
+     synth.tcl
+#Copy from git the following files ( and only the following files) to /rtl_syn
+
+     av_minus_b_eng.vhd
+     fft_engine_module_64_by_64_no_verify.vhd
+     fft_inbound_state_machine_controller_64_by_64.vhd
+     fifo_256_module.vhd
+     fista_accel_top.vhd
+     fista_accel_top_wrapper_v1_0.vhd
+     front_end_module.vhd
+     gen_proc_module.vhd
+     h_h_start_mult_eng.vhd
+     h_hstat_inbound_state_machine_controller.vhd
+     inbound_flow_module_64_by_64.vhd
+     init_state_machine_controller_64_by_64.vhd
+     master_machine_controller.vhd
+     mem_controller_64_by_64.vhd
+     mem_h_module_64_by_64.vhd
+     mem_in_buffer_module_64_by_64.vhd
+     mem_st_machine_controller_64_by_64.vhd
+     mem_transpose_module_ONLY_FOR_BD_SYNTH.vhd
+     mem1_test_module_fwd_fft2d_src_image.vhd
+     mem2_test_module_h_src_image.vhd
+     mem2_transpose_module_ONLY_FOR_BD_SYNTH.vhd
+     proto_mem_v3_0_S00_AXI.vhd
+     ps_state_machine_controller_64_by_64.vhd
+     update_eng.vhd
      
+     
+	
+Step #4. 
+     #Copy from git the following files ( and only the following files) to /coe
+     point_source_vectors_64_by_64.coe
+     read_addr_vectors_64_by_64.coe
+     wr_addr_vectors_64_by_64.coe
+     point_h_src_2_data_64_by_64.coe
+     point_h_src_data_64_by_64.coe
+
+Step #5.
+     #Copy from git the following files ( and only the following files) to /script
+
+     build_syn_64_by_64_mem_img_project.tcl
+     create_syn_64_by_64_mem_img_ip.tcl
+     
+Step #6. 
+     #Execute the command from a Windows file: 
+     C:\Xilinx_2022_2\Vivado\2022.2\bin\vivado.bat -mode batch -source C:\design\<your_root_name>\script\build_syn_64_by_64_mem_img_project.tcl 
+      
+      
+Step #7.
+     #Open the vivado Project
+     C:\design\<your_root_name>\build\fa_ip_test\fa_ll_ip_test.xpr
+   
+	
+Step #9.
+     Launch Synthesis ( from \script)
+     source synth.tcl
+     
+Step #10.
+     Launch Implementation ( from radial button or prompt after synthesis)
 
 
 
