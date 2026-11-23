@@ -400,7 +400,7 @@ Step #2.
 /build
 /coe
 /constraints
-/rtl_sim_wo_axi
+/rtl_syn
 /script
 /waveforms
 /verification
