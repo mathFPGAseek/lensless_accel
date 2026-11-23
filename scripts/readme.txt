@@ -453,6 +453,8 @@ Step #5.
 
      build_syn_64_by_64_mem_img_project.tcl
      create_syn_64_by_64_mem_img_ip.tcl
+     synth.tcl
+     
      
 Step #6. 
      #Execute the command from a Windows file: 
